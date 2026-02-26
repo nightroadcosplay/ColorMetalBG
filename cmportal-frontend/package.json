@@ -1,0 +1,86 @@
+{
+  "name": "cmportal",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --openssl-legacy-provider",
+    "build": "vue-cli-service build --openssl-legacy-provider",
+    "lint": "vue-cli-service lint --openssl-legacy-provider"
+  },
+  "dependencies": {
+    "@easyfonts/saira-typeface": "^1.0.6",
+    "@hcaptcha/vue3-hcaptcha": "^1.2.1",
+    "@quasar/extras": "^1.0.0",
+    "@types/numeral": "^2.0.2",
+    "@unhead/vue": "^1.1.25",
+    "axios": "^0.24.0",
+    "babel-plugin-transform-decorators": "^6.24.1",
+    "core-js": "^3.19.3",
+    "dayjs": "^1.10.7",
+    "http-proxy-middleware-secure-cookies": "^0.1.8",
+    "latinize": "^0.5.0",
+    "material-design-icons-iconfont": "^6.7.0",
+    "moment": "^2.29.1",
+    "numeral": "^2.0.6",
+    "pspdfkit": "^2022.5.5",
+    "quasar": "^2.6.6",
+    "roboto-fontface": "^0.10.0",
+    "url-search-params-polyfill": "^8.1.1",
+    "vue": "^3.2.24",
+    "vue-class-component": "^8.0.0-0",
+    "vue-i18n": "^11.1.12",
+    "vue-page-transition": "^0.2.2",
+    "vue-pdf-embed": "^1.1.5",
+    "vue-property-decorator": "^9.1.2",
+    "vue-router": "^4.0.0-0",
+    "vuedraggable": "^4.1.0",
+    "vuex": "^4.0.0-0",
+    "vuex-module-decorators": "^2.0.0"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.16.0",
+    "@babel/plugin-proposal-decorators": "^7.16.4",
+    "@types/latinize": "^0.2.15",
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-typescript": "~4.5.0",
+    "@vue/cli-plugin-vuex": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.0.0",
+    "@vue/eslint-config-typescript": "^7.0.0",
+    "dotenv": "^16.0.3",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^7.0.0",
+    "sass": "1.32.12",
+    "sass-loader": "^10.1.0",
+    "typescript": "~4.1.5",
+    "vue-cli-plugin-quasar": "~4.0.4"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended",
+      "@vue/typescript/recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2020
+    },
+    "rules": {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-this-assignment": "off",
+      "@typescript-eslint/no-this-alias": "off"
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

@@ -1,0 +1,14 @@
+[2025-02-07 10:59:53] Called sendAcceptOffer with id_offer: 1532
+JSON: Array
+[2025-02-07 11:00:30] Called sendAcceptOffer with id_offer: 1532
+JSON: {"nrComandaCerere":"24-0253asdasdas","slidAdresaLivrare":15364,"inputFreeTextComments":"asdasdasdasdasdas"}
+[2025-02-07 11:02:03] Called sendAcceptOffer with id_offer: 1532
+JSON: {"nrComandaCerere":"24-0253asdasdas","slidAdresaLivrare":15364,"inputFreeTextComments":"asdasdasdasdasdas"}
+2025-02-07 11:03:44 -> Called sendAcceptOffer with id_offer: 1532
+    Request URI: /api/offer/accept_offer/1532
+    JSON payload: {"nrComandaCerere":"24-0253asdasdas","slidAdresaLivrare":15364,"inputFreeTextComments":"asdasdasdasdasdas"}
+
+[2025-02-07 11:05:15] Request: POST /api/offer/accept_offer/1532 | IP: ::1 | UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36
+  Offer ID: 1532
+  Body: {"nrComandaCerere":"24-0253asdasdas","slidAdresaLivrare":15364,"inputFreeTextComments":"asdasdasdasdasdas"}
+

@@ -1,0 +1,388 @@
+<html><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style type="text/css">
+        * {
+            font-family: Courier ;
+        }
+        /**
+            Set the margins of the page to 0, so the footer and the header
+            can be of the full height and width !
+         **/
+        @page {
+            margin: 0cm 0cm;
+        }
+
+        /** Define now the real margins of every page in the PDF **/
+        body {
+            margin-top: 2cm;
+            margin-left: 1.5cm;
+            margin-right: 2cm;
+            margin-bottom: 3cm;
+            font-size: 10px;
+        }
+        header {
+            position: fixed;
+            top: 0.5cm;
+            left: 1cm;
+            right: 1cm;
+            height: 1.5cm;
+
+            /** Extra personal styles **/
+            background-color: white;
+            color: white;
+            text-align: center;
+            line-height: 1.5cm;
+        }
+        footer {
+            position: fixed;
+            bottom: 0cm;
+            left: 0cm;
+            right: 0cm;
+            height: 2cm;
+
+            /** Extra personal styles **/
+            background-color: white;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div style="width: 100%;text-align: right;"><img src="<?=$dir_template_documente;?>/logomic2.png"></div>
+</header>
+<footer>
+    <table style="width: 100%;">
+        <tr>
+            <td>&nbsp;&nbsp;&nbsp;</td>
+            <td>
+                <div style="width: 100%;text-align: right;"><img style="width:80px;height:50px;" src="<?=$dir_template_documente;?>/logo_footer_oferta_pdf_simtex.png">
+            </td>
+            <td>&nbsp;&nbsp;&nbsp;</td>
+            <td>Bucuresti
+            <br>Tel: +40.21.313.50.05
+            <br>Fax: +40.31.080.86.68
+            <br>officebuc@color-metal.ro
+            </td>
+            <td>Timisoara
+			<br>Tel: +40.256.281.041
+			<br>Fax: +40.256.220.200
+			<br>officetm@color-metal.ro
+            </td>
+            <td>Odorheiu Secuiesc
+                <br>Tel: +40.266.206.050
+                <br>Fax: +40.266.206.051
+                <br>direct@color-metal.ro
+            </td>
+        </tr>
+    </table>
+</footer>
+<br>
+<div style="width: 100%;text-align: center;"><span style="font-size: 18px;font-weight: bold;">Price Offer</span>
+    <br><span style="font-size: 16px;font-weight: bold;">No. <?=$offer->slid;?>/<?=substr($offer->track_creation_time,8,2).'.'.substr($offer->track_creation_time,5,2).'.'.substr($offer->track_creation_time,0,4);?></span>
+</div>
+<br>
+<br>
+<div style="width: 100%;text-align: center;font-size: 12px;">
+<table style="max-width: 600px;margin: 0 auto;">
+    <tbody>
+    <tr>
+        <td>
+            <b>Vendor</b>
+        </td>
+        <td>
+            <b>Buyer <?=$partener->navisionid;?></b>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            COLOR-METAL SRL
+        </td>
+        <td>
+            <?=$partener->denumire;?>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            VAT NO:RO17665726
+        </td>
+        <td>
+            VAT NO:<?= ($partener->neinregistrat_scop_tva=='n'&& $partener->id_country=='RO'?'RO':'').$partener->cif;?>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            535600 Romania
+        </td>
+        <td>
+            <?=$partener_adresa->adresa_cod_postal;?> <?=$partener_adresa->den_tara;?>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            ODORHEIU SECUIESC
+        </td>
+        <td>
+            <?=$partener_adresa->adresa_localitate;?>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Nicolae Balcescu Street, No. 95
+        </td>
+        <td>
+            <?=$partener_adresa->adresa_adresa;?>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <b>COD IBAN:<?=$IBAN_ColorMetal;?></b>
+        </td>
+        <td>
+            <?=$partener_adresa->adresa_cod_judet;?>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <b>BANCA:<?=$Banca_ColorMetal;?></b>
+        </td>
+        <td>
+            <b>Tel.</b>: <?=$contact->phone1;?>
+        </td>
+    </tr>
+    
+    <?php isset($IBAN_ColorMetal_BCR) ?>
+        <tr>
+            <td>
+                <b>COD IBAN:<?=$IBAN_ColorMetal_BCR;?></b>
+            </td>
+            <td>
+            
+            </td>
+        </tr>
+    <?php isset($Banca_ColorMetal_BCR) ?>
+        <tr>
+            <td>
+                <b>BANCA:<?=$Banca_ColorMetal_BCR;?></b>
+            </td>
+            <td>
+        
+            </td>
+        </tr>
+    <tr>
+        <td>
+            <b>Tel.:</b> +40-266-206050
+        </td>
+        <td>
+            <b>Contact pers.</b>: <?=$offers_tail->contact_nume;?>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <b>Fax:</b>	+40-266-206051
+        </td>
+        <td>
+            <b>Contact pers tel.</b>: <?=$offers_tail->contact_telefon;?>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <b>Contact pers.</b>: <?=$offer->userName;?>
+        </td>
+        <td>
+            <b>Your order no.</b>: <?=$offers_tail->comanda_client;?>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <b>Tel.</b>:	<?=$offer->userTelefon;?>
+            <br><b>Email</b>: <?=$offer->userEmail;?>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</div>
+<br>
+<br>
+<b>Thank you for choosing SC COLOR METAL Ltd, We are pleased to offer the following items:</b>
+<br><?php
+$exista_um1=false;
+$exista_um2=false;
+$exista_um12=false;
+foreach ($articole_oferta as $articol){
+    if($articol->tip_um=='um1'){$exista_um1=true;}
+    if($articol->tip_um=='um2'){$exista_um2=true;}
+    if($articol->tip_um=='um12'){$exista_um12=true;}
+}
+?>
+<table style="border: 1px solid #6f7180; border-collapse: collapse;margin: 0 auto;width: 100%;">
+    <thead>
+    <tr>
+        <th style="padding: 1px;background-color: #f7f8f9;font-size:0.8em;">No.</th>
+        <th style="padding: 3px;background-color: #f7f8f9;">Description of goods</th>
+        <?php if($exista_um1||$exista_um12) { ?>
+            <th style="padding: 3px;background-color: #f7f8f9;">Qty<br>UM1</th>
+            <th style="padding: 3px;background-color: #f7f8f9;">UM1</th>
+            <th style="padding: 0px;background-color: #f7f8f9;white-space: nowrap;">Price <?=$id_valuta;?> UM1</th>
+        <?php } ?>
+        <?php if($exista_um2||$exista_um12) { ?>
+            <th style="padding: 3px;background-color: #f7f8f9;">Qty<br>UM2</th>
+            <th style="padding: 3px;background-color: #f7f8f9;">UM2</th>
+            <th style="padding: 0px;background-color: #f7f8f9;white-space: nowrap;">Price <?=$id_valuta;?> UM2</th>
+        <?php } ?>
+        <?php if($exista_um12) { ?>
+            <th style="padding: 3px;background-color: #f7f8f9;">UM1/UM2</th>
+        <?php } ?>
+        <th style="padding: 3px;background-color: #f7f8f9;">Net Value<br>Price X Quantity</th>
+        <th style="padding: 3px;background-color: #f7f8f9;">Delivery<br>Term</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php
+    $nr_crt=0;
+    $greutate_totala=0;
+    foreach ($articole_oferta as $articol){
+        $nr_crt++;
+        $info_observatii='';
+        if($articol->observatii_asm){
+            $info_observatii="<br>Remarks: ".$articol->observatii_asm;
+        }
+        $info_grosime_diametru_latime_lungime='';
+        if($articol->grosime){
+            $info_grosime_diametru_latime_lungime.='G'.number_format($articol->grosime,2);
+        }
+        if($articol->diametru){
+            $info_grosime_diametru_latime_lungime.=($info_grosime_diametru_latime_lungime?' x':'').' T'.number_format($articol->diametru,2);
+        }
+        if($articol->latime){
+            $info_grosime_diametru_latime_lungime.=($info_grosime_diametru_latime_lungime?' x':'').' Width'.number_format($articol->latime,0);
+        }
+        if($articol->lungime){
+            $info_grosime_diametru_latime_lungime.=($info_grosime_diametru_latime_lungime?' x':'').' Length'.number_format($articol->lungime,0);
+        }
+        if($articol->nr_buc>0){
+            $info_grosime_diametru_latime_lungime.=($info_grosime_diametru_latime_lungime?' /':'').' <b>Pcs:'.number_format($articol->nr_buc,0).'</b>';
+        }
+        if($info_grosime_diametru_latime_lungime){$info_grosime_diametru_latime_lungime="<br>".$info_grosime_diametru_latime_lungime;}
+        if($articol->um1=='KG'){
+            $greutate_totala+=is_numeric($articol->q1)?$articol->q1:0;
+        }else{if($articol->um2=='KG'){
+            $greutate_totala+=is_numeric($articol->q2)?$articol->q2:0;
+        }}
+
+        ?>
+        <tr><td style="padding: 3px;border: solid 1px #6f7180;"><?=$nr_crt;?></td>
+            <td style="padding: 3px;border: solid 1px #6f7180;"><b><?=$articol->productName;?></b>
+                <?php if($articol->val_discount_linie!=0) {echo '<br><span style="color: red;">Discount -'.$articol->discount_proc.'%</span>';}?><?=$info_grosime_diametru_latime_lungime;?><?=$info_observatii;?>
+                <?php if($articol->standard_description) {echo '<br><span>'.$articol->standard_description.'</span>';} ?>
+            </td>
+            <?php if($exista_um1||$exista_um12) { ?>
+                <td style="padding: 3px;border: solid 1px #6f7180;"><?php if(($articol->tip_um=='um1'||$articol->tip_um=='um12')&&$articol->um1&&$articol->q1){ echo number_format($articol->q1,2);}?></td>
+                <td style="padding: 3px;border: solid 1px #6f7180;"><?php if(($articol->tip_um=='um1'||$articol->tip_um=='um12')&&$articol->um1&&$articol->q1){ echo str_ireplace('BUC','PCS',$articol->um1);}?></td>
+                <td style="padding: 3px;border: solid 1px #6f7180;text-align: right;"><?php if(($articol->tip_um=='um1'||$articol->tip_um=='um12')&&$articol->um1&&$articol->pret_um1){ echo number_format($articol->pret_um1,2);}?></td>
+            <?php } ?>
+            <?php if($exista_um2||$exista_um12) { ?>
+                <td style="padding: 3px;border: solid 1px #6f7180;"><?php if(($articol->tip_um=='um2'||$articol->tip_um=='um12')&&$articol->um2&&$articol->q2){echo number_format($articol->q2,2);};?></td>
+                <td style="padding: 3px;border: solid 1px #6f7180;"><?php if(($articol->tip_um=='um2'||$articol->tip_um=='um12')&&$articol->um2&&$articol->um2){echo str_ireplace('BUC','PCS',$articol->um2);}?></td>
+                <td style="padding: 3px;border: solid 1px #6f7180;text-align: right;"><?php if(($articol->tip_um=='um2'||$articol->tip_um=='um12')&&$articol->um2&&$articol->pret_um2){ echo number_format($articol->pret_um2,2);}?></td>
+            <?php } ?>
+            <?php if($exista_um12) { ?>
+                <td style="padding: 3px;border: solid 1px #6f7180;"><?php if($articol->q2!=0){echo number_format($articol->q1/$articol->q2,2);}?></td>
+            <?php } ?>
+            <td style="padding: 3px;border: solid 1px #6f7180;text-align: right;"><?=($articol->val_baza?number_format((is_null($articol->val_baza)?0:$articol->val_baza),2):'');?><?php if($articol->val_discount_linie!=0) {echo '<br><span style="color: red;">-'.number_format($articol->val_discount_linie,2).'</span>';}?></td>
+            :
+            <td style="padding: 3px;border: solid 1px #6f7180;"><?=substr($articol->termen_livrare,8,2).'.'.substr($articol->termen_livrare,5,2).'.'.substr($articol->termen_livrare,0,4);?></td></tr>
+        <?php
+    }
+    ?>
+    </tbody>
+</table>
+<br>
+<div style="width: 100%;text-align: right;">
+    <table style="margin-left: 300px;">
+        <tr>
+            <td>Subtotal:</td>
+            <td style="text-align:right"><?=number_format(is_null($offer->val_baza)?0:$offer->val_baza,2);?></td>
+            <td><?=$id_valuta;?></td>
+        </tr>
+        <?php
+        if($offer->val_discount_linii!=0){
+            ?>
+            <tr>
+                <td>Articles Discount:</td>
+                <td style="text-align:right">-<?=number_format(is_null($offer->val_discount_linii)?0:$offer->val_discount_linii,2);?></td>
+                <td><?=$id_valuta;?></td>
+            </tr>
+            <?php
+        }
+        ?>
+        <?php
+        if( $offer->val_discount_oferta!=0){
+            ?>
+            <tr>
+                <td>Offer Discount:</td>
+                <td style="text-align:right">-<?=number_format(is_null( $offer->val_discount_oferta)?0: $offer->val_discount_oferta,2);?></td>
+                <td><?=$id_valuta;?></td>
+            </tr>
+            <?php
+        }
+        ?>
+        <tr>
+            <td>Net value:</td>
+            <td style="text-align:right"><?=number_format(is_null($offer->val_finala_fara_tva)?0:$offer->val_finala_fara_tva,2);?></td>
+            <td><?=$id_valuta;?></td>
+        </tr>
+        <tr>
+            <td>VAT:</td>
+            <td style="text-align:right"><?=number_format(is_null($offer->val_tva)?0:$offer->val_tva,2);?></td>
+            <td><?=$id_valuta;?></td>
+        </tr>
+        <tr>
+            <td>Total value:</td>
+            <td style="text-align:right"><?=number_format(is_null($offer->val_finala_cu_tva)?0:$offer->val_finala_cu_tva,2);?></td>
+            <td><?=$id_valuta;?></td>
+        </tr>
+    </table>
+
+</div>
+<br>
+<table>
+	<tr>
+		<td colspan="2">
+			The specified weight is only theoretical and it could differ from the real measured weight, due to the geometrical tolerances given by EN standards.
+		</td>
+	</tr>
+    <?php
+        if(isset($mesaj_comision_risc) && strlen($mesaj_comision_risc)>0){
+            echo '	<tr>
+            <td colspan="2" style="color:black";>
+                '.$mesaj_comision_risc.'
+            </td>
+        </tr>';
+        }
+    ?>     
+    <tr>
+        <td><b>Total weight:</b></td>
+        <td><?=number_format($greutate_totala,2);?> Kg</td>
+    </tr>
+    <tr>
+        <td><b>Delivery Address</b></td>
+        <td><?=$adresa_de_livrare;?></td>
+    </tr>
+    <tr><td><b>Payment term:</b></td>
+        <td><?=strtoupper($clients_def_financial->metoda_plata);?></td>
+    </tr>
+    <tr>
+    <td><b>Total Debit (RON):</b></td>
+        <td><?=$creanta_client;?></td>
+    </tr>
+    <tr>
+        <td><b>Remarks:</b></td>
+        <td><?=$offers_tail->observatii_asm;?></td>
+    </tr>
+    <tr>
+        <td><b>Validity of the offer:</b></td>
+        <td><?=$offer_expiry_date;?></td>
+    </tr>
+</table>
+
+</body></html>

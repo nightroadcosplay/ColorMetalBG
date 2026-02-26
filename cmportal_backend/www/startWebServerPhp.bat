@@ -1,0 +1,1 @@
+c:\php8.1.31\php.exe -S localhost:83 -t / .htrouter.php
