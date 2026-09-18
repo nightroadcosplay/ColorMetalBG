@@ -4,7 +4,7 @@
   <div class="flex__column--center">
   <div class="ecran-container " >
     <div class="div__product--img" >
-      <span class="app__title--medium">{{paramArticles.categoryName}}</span>
+      <span class="app__title--medium">{{ $i18n.locale === 'ro' ? paramArticles.categoryNameRO : $i18n.locale === 'en' ? paramArticles.categoryNameEN : paramArticles.categoryNameBG }}</span>
       <q-img :src="urlToJPG+'/'+pidCategory" class="category__img" fit="scale-down" ratio="1"/>
       <q-btn v-if="existaArticole" outline dense color="blue"  no-caps  style="max-width: 12rem; margin:1rem auto 0 auto" @click="toggleArticleInFavorites">
         <q-icon v-if="articleIsOnFavorites" left size="1.3rem" name="favorite" color="red"/><q-icon v-else left size="1.2rem" name="favorite_border" color="red"/>
@@ -59,9 +59,9 @@
         </div>
 
         <div v-if="paramArticles.withType=='y'" style="padding-top:1rem; "  :style="{ order: paramArticles.positionType }">
-          <div  class="app__label--medium text-weight-bold">Tip</div>
+          <div  class="app__label--medium text-weight-bold">{{$t('message.type')}}</div>
           <div class="card__dimensiuni" >
-            <div v-for="(size, index) in paramArticles.arrType" v-bind:key="size" class="card__dimensiuni--item hover-div"  v-bind:class="{ 'card__dimensiuni--item--available': isTypeAvailable(size),'card__dimensiuni--item--selected':selectedType==size }" @click="setSize('k',size); showTipImages(paramArticles.categoryPid, index, size)">{{size}}
+            <div v-for="(size, index) in paramArticles.arrType" v-bind:key="size" class="card__dimensiuni--item hover-div"  v-bind:class="{ 'card__dimensiuni--item--available': isTypeAvailable(size),'card__dimensiuni--item--selected':selectedType==size }" @click="setSize('k',size); showTipImages(paramArticles.categoryPid, index, size)">{{typeLabel(size)}}
             <q-tooltip>{{$t('message.available_pictures')}}</q-tooltip>
             </div>
           </div>
@@ -142,9 +142,9 @@
       <div style="display: flex;justify-content: flex-start; padding-top:2rem;padding-bottom:2rem;padding-right: 2rem;min-height:7rem; ">
         <q-input
             v-if="selectedSize.um1 && selectedSize.um1.length>0 && !HideUm1IfBucDebit"
-            v-model.number="qUm1"
+            v-model.number="qUm1Input"
             type="number"
-            :readonly="selectedSize.cuDebitare && dorescDebitare"
+            :readonly="(selectedSize.cuDebitare && dorescDebitare) || ReadonlyKgForPlacaBara"
             outlined
             label-slot
             min="0"
@@ -152,7 +152,7 @@
             @update:model-value="coreleazaUm1Um2('um1')"
         >
           <template v-slot:label>
-            <span style="font-weight: bold;font-size:1.2rem;">{{selectedSize.um1}}</span>
+            <span style="font-weight: bold;font-size:1.2rem;">{{$umLabel(selectedSize.um1)}}</span>
           </template>
         </q-input>
 
@@ -166,13 +166,13 @@
             min="0"
             style="max-width: 7rem;margin-left:1rem;"
             @update:model-value="coreleazaUm1Um2('um2')"
-            :error="ErrorRuleIntegerNumberBuc" 
+            :error="ErrorRuleIntegerNumberBuc || ErrorRuleMultipleOfLength"
                 >
           <template v-slot:label>
-            <span style="font-weight: bold;font-size:1.2rem;">{{selectedSize.um2}}</span>
+            <span style="font-weight: bold;font-size:1.2rem;">{{$umLabel(selectedSize.um2)}}</span>
           </template>
           <template v-slot:error>
-              <span>{{ msjErrorRuleIntegerNumberBuc }}</span>
+              <span v-if="!ErrorRuleMultipleOfLength">{{ msjErrorRuleIntegerNumberBuc }}</span>
             </template>
         </q-input>
 
@@ -180,11 +180,11 @@
           <span style="text-align: center;display: flex;align-items: center;">{{$t('message.tip_um_dorit_la_ofertare')}}</span>
           <div style="display: flex; flex-direction: row;">
             <div v-if="(!HideUm1IfBucDebit || dorescDebitare) && (selectedSize.um1 != '' && selectedSize.um1 != null)" style="display: flex; flex-direction: column;align-items: center;">
-              {{ selectedSize.um1 }}
+              {{$umLabel(selectedSize.um1)}}
               <q-checkbox size="xl" v-model="selectedUM1"  @update:model-value="val => changeTipUm(val, 1)"/>
             </div>
             <div v-if="(!HideUm2IfBucDebit || dorescDebitare) && (selectedSize.um2 != '' && selectedSize.um2 != null)" style="display: flex; flex-direction: column;align-items: center;">
-              {{ selectedSize.um2 }}
+              {{$umLabel(selectedSize.um2)}}
               <q-checkbox size="xl" v-model="selectedUM2" @update:model-value="val => changeTipUm(val, 2)" />
             </div>
           </div>
@@ -192,6 +192,11 @@
         
       </div>
       
+      <!-- Full width, not the M field's error slot: that slot is as narrow as the
+           field, so a sentence this long wrapped over the status and basket button. -->
+      <div v-if="ErrorRuleMultipleOfLength" class="text-negative" style="padding-bottom: 1rem;">
+        {{ $t('message.cantitatea_multiplu_de_lungime', { length: SelectedLengthInMetres + ' ' + $umLabel(selectedSize.um2) }) }}
+      </div>
       <div v-if="(selectedSize.um1 || selectedSize.um2)" style="display: flex;align-items: center;gap: 8px;">
         <span style="font-size: 1rem;">{{$t('message.status')}}: <b>{{ labelStock }}.</b></span>
         <q-circular-progress
@@ -238,8 +243,8 @@
           <q-btn dense v-if="$q.platform.is.mobile" flat  color="blue" align="center" v-close-popup >
             <q-icon name="arrow_back_ios" style="font-weight: bold" />
           </q-btn>
-          <div class="app__title--small" v-if="$q.platform.is.desktop" ><span style="color:black;font-weight: 900;">{{labelTitle}}</span></div>
-          <div class="app__title--small" v-if="$q.platform.is.mobile" ><span style="color:black;font-weight: 900;">{{labelTitle}}</span></div>
+          <div class="app__title--small" v-if="$q.platform.is.desktop" ><span style="color:black;font-weight: 900;">{{typeLabel(labelTitle)}}</span></div>
+          <div class="app__title--small" v-if="$q.platform.is.mobile" ><span style="color:black;font-weight: 900;">{{typeLabel(labelTitle)}}</span></div>
           <q-space dense v-if="$q.platform.is.desktop" />
 
           <q-btn dense v-if="$q.platform.is.desktop" flat icon="close" color="black" v-close-popup>

@@ -17,6 +17,8 @@ import NomEditAdresaLivrare from '@/components/NomEditAdresaLivrare/NomEditAdres
 import EventsBus from "@/store/eventbus";
 import EditQuantityArticleCerere from '@/components/EditQuantityArticleCerere/EditQuantityArticleCerere';
 import { getFirstCategory } from '@/modules/utils';
+import {hideKgQuantity} from '@/modules/umDisplay';
+import {localizedTypeLabel} from '@/modules/typeLabel';
 
 type TProductBasketMarkedFavorites = TProductBasket & {isInFavorite:boolean};
 @Options({
@@ -29,6 +31,11 @@ export default class MyShoppingCart extends Vue {
     public urlToJPG = CONFIG_ENV.URL_CATEGORY.getJPG;
     public storeBasket = getModule(basket);
     public storeFavorites = getModule(favorites);
+
+    // Type label in the current language; the RO text stays the stored value.
+    public typeLabel(sizeType: string|null|undefined): string {
+        return localizedTypeLabel(sizeType, this.$i18n.locale);
+    }
     public appidToBeRemovedFromBasket = '';
     public appidToBeTogglesWithFavorites = '';
     public inputFreeTextComments='';
@@ -85,6 +92,7 @@ export default class MyShoppingCart extends Vue {
                 um1:product.um1,
                 um2:product.um2,
                 um1_to_um2:product.um1_to_um2,
+                kgFromUm2:product.kgFromUm2,
                 l: product.l,
                 w: product.w,
                 t: product.t,
@@ -393,4 +401,21 @@ export default class MyShoppingCart extends Vue {
         this.isMyShoppingCartActivated = false;
         this.isAdreseLivrareActivated = false;
     }
+
+    //The KG figure is dropped when it would just repeat the um2 figure - see
+    //hideKgQuantity. Only ever hidden while the um2 line is actually rendered,
+    //so a row never ends up with no quantity at all. item.qUm1 is untouched.
+    public showQtyUm1(item:TProductBasket):boolean{
+        const byTipUm = item.tip_um === 'um12' || item.tip_um === 'um1';
+        if(!byTipUm){return false;}
+        const um2Shown = !!(item.um2 && item.um2.length>0 && (item.tip_um === 'um12' || item.tip_um === 'um2'));
+        return !(um2Shown && hideKgQuantity({
+            kgFromUm2: item.kgFromUm2,
+            um1: item.um1,
+            um2: item.um2,
+            um1ToUm2: item.um1_to_um2,
+            cutting: !!item.dorescDebitare
+        }));
+    }
+
 }

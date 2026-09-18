@@ -13,6 +13,7 @@ import {TMail} from '@/types/TMail';
 import MenuApp from './components/MenuApp/MenuApp.vue';
 import ContacteleMeleColorMetal from "@/components/ContacteleMeleColorMetal.vue";
 import {ServiceUser} from '@/services/ServiceUser';
+import {setQuasarLang} from '@/modules/quasarLang';
 import {getNomenclatoare} from '@/modules/getNomenclatoare'
 import {getFavorites} from '@/modules/getFavorites'
 import {getBasket} from '@/modules/getBasket'
@@ -24,6 +25,8 @@ import { ServiceCompanyUsers } from './services/ServiceCompanyUsers';
 import { ServiceAlerts } from './services/ServiceAlerts';
 import { RouteRecordName } from 'vue-router';
 import { TLanguage } from './types/TLanguage';
+import { ServiceDownload } from './services/ServiceDownload';
+import VuePdfEmbed from 'vue-pdf-embed';
 /*
 var MockAdapter = require('axios-mock-adapter');
 var mock = new MockAdapter(axios);
@@ -40,7 +43,7 @@ axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 @Options({
     name: "App",
-    components: {MenuApp,ContacteleMeleColorMetal}
+    components: {MenuApp,ContacteleMeleColorMetal,VuePdfEmbed}
 })
 export default class App extends Vue {
     public leftDrawerOpen = false;
@@ -54,6 +57,12 @@ export default class App extends Vue {
     public ionLogoYoutube = ionLogoYoutube;
     public ionLogoLinkedin = ionLogoLinkedin;
     public visibleInputFastSearch = false;
+    public pdfDocumentDialog = false;
+    public pdfDocument = '';
+    public pdfDocumentTitle = '';
+    public isLoadingDocument = false;
+    public widthPdf = 300;
+    public clickedZoom = false;
     declare public $refs: any;
     public userStore = getModule(user);
     public storeNomenclatoare = getModule(nomenclatoare);
@@ -64,7 +73,7 @@ export default class App extends Vue {
     public type='0';
     public token='';
     public languages: Array<TLanguage>=[{id: 'ro', name: 'romana'}, {id: 'en', name: 'english'},{id: 'bg', name: 'bulgarian'}];
-    public selectedLang = 'ro';
+    public selectedLang = 'en';
     // public userCompanies: Array<TUserCompany> = [];
 
     public div_el: HTMLDivElement | undefined;
@@ -207,6 +216,11 @@ export default class App extends Vue {
     }
 
     public goBack(): void {
+        //Cerere/Oferta have an inner browse-articles view, so they decide themselves what "back" means
+        if(this.$route.name=='Cerere' || this.$route.name=='Oferta'){
+            this.storeEventsBus.set_event({name:'closeCurrentView', params:null});
+            return;
+        }
         this.$router.back();
     }
 
@@ -339,6 +353,9 @@ export default class App extends Vue {
                 // });
                 localStorage.setItem('isAuthenticatedUser', 'y');
                 this.selectedLang = response.user.lang;
+                this.$i18n.locale = response.user.lang;
+                setQuasarLang(response.user.lang);
+                localStorage.setItem('lang', response.user.lang);
                 console.log("check token " + this.selectedLang);
                 vueInst.userStore.set_user(response.user);
                 vueInst.userStore.set_user_is_authenticated(true);
@@ -436,6 +453,7 @@ export default class App extends Vue {
         console.log("change lang " + this.selectedLang);
         localStorage.setItem('lang', vueInst.selectedLang);
         this.$i18n.locale = vueInst.selectedLang;
+        setQuasarLang(vueInst.selectedLang);
         ServiceUser.changeLang(vueInst.selectedLang);
         vueInst.storeEventsBus.set_event({name:'changeLanguage', params:null});
     }
@@ -469,6 +487,42 @@ export default class App extends Vue {
 
     public openLink(link: string): void {
         window.open(link);
+    }
+
+    public changeWitdhPdf(op: string): void {
+        if(op == 'in') {
+            if(this.widthPdf > 1500) {return;}
+            this.widthPdf *= 1.25;
+        } else {
+            if(this.widthPdf < 300) {return;}
+            this.widthPdf /= 1.25;
+        }
+        this.clickedZoom = true;
+        setTimeout(function(){
+            this.clickedZoom = false;
+        }.bind(this),1000);
+    }
+
+    public downloadPDF(): void {
+        const vueInst = this;
+        const downloadLink = document.createElement("a");
+        downloadLink.href = vueInst.pdfDocument;
+        downloadLink.download = vueInst.pdfDocumentTitle + '.pdf';
+        downloadLink.click();
+    }
+
+    public generarePdfDocument(type: string, title: string): void {
+        const vueInst = this;
+        vueInst.pdfDocument = '';
+        vueInst.pdfDocumentTitle = title;
+        vueInst.isLoadingDocument = true;
+        vueInst.pdfDocumentDialog = true;
+        ServiceDownload.generarePDFPrivacy(type).then(response => {
+            vueInst.isLoadingDocument = false;
+            if(response.status == 'success') {
+                vueInst.pdfDocument = 'data:application/pdf;base64,'+ response.message;
+            }
+        });
     }
 
     public onGoTOMyShoppingCart(): void {

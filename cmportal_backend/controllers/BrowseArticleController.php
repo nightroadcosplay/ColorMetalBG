@@ -5,6 +5,7 @@ use Phalcon\Db\Enum;
 
 class BrowseArticleController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -86,18 +87,33 @@ public function identifyArticleInDB($pidCategory,$selectedLength,$selectedWidth,
             $responce->isPlacaAluminiu = '1';
         } 
 
+        //Does this category enter its quantity in um2, with the weight derived?
+        //Declared per category because the placa/bara shape alone also catches
+        //flat bars, profiles and square tubes.
+        $responce->kgFromUm2 = 'n';
+        if(count($arr) > 0){
+            $categ = NomCategoryProduct::findFirst([
+                'conditions' => 'pid = ?1',
+                'bind'       => [1 => $arr[0]]
+            ]);
+            if($categ && $categ->kg_from_um2 == 'y'){ $responce->kgFromUm2 = 'y'; }
+        }
+
         $responce->status="success";
         $responce->categoryPid=$article['pid_category'];
         $responce->productPid=$article['pid'];
         $responce->productCode=$article['product_code'];
-        $responce->productName=$article['product_name_ro'];
+        $responce->productName=$this->localizedName($article['product_name_ro'], $article['product_name_en'], $article['product_name_bg']);
+        $responce->productNameRO=$article['product_name_ro'];
+        $responce->productNameEN=$article['product_name_en'];
+        $responce->productNameBG=$article['product_name_bg'];
         $responce->um1=$article['um1'];
         $responce->um2=$article['um2'];
         $responce->um1ToUm2=$article['um1_to_um2'];
         $responce->cuDebitare=$article['cu_debitare'];
     }else{
             $responce->status="error";
-            $responce->message="Nu poate fi identificat articolul!";
+            $responce->message=$this->t('nu_poate_fi_identificat_articolul');
     }
 
     return $responce;
@@ -136,6 +152,9 @@ $responce->status="init";
 $responce->message="";
 $responce->categoryPid="";
 $responce->categoryName="";
+$responce->categoryNameRO="";
+$responce->categoryNameEN="";
+$responce->categoryNameBG="";
 $responce->isParentForArticles="";
 $responce->withLength="";
 $responce->withWidth="";
@@ -164,6 +183,9 @@ if($selectedCategory){
     $responce->status="success";
     $responce->categoryPid=$selectedCategory->pid;
     $responce->categoryName=$selectedCategory->name_ro;
+    $responce->categoryNameRO=$selectedCategory->name_ro;
+    $responce->categoryNameEN=$selectedCategory->name_en;
+    $responce->categoryNameBG=$selectedCategory->name_bg;
     $responce->isParentForArticles=$selectedCategory->is_parent_for_articles;
     $responce->withLength=$selectedCategory->with_length;
     $responce->withWidth=$selectedCategory->with_width;
@@ -277,14 +299,14 @@ if($selectedCategory){
         //array_unshift($responce->hierarchicalChain,["categoryPid"=>$pidParentCategToGet,"categoryName"=>$selectedCategory->name_ro]);
          while($categoryParent = NomCategoryProduct::findFirstByPid($pidParentCategToGet)){
             if($categoryParent->parent_pid){
-                                array_unshift($responce->hierarchicalChain,["categoryPid"=>$categoryParent->pid,"categoryName"=>$categoryParent->name_ro] );
+                                array_unshift($responce->hierarchicalChain,["categoryPid"=>$categoryParent->pid,"categoryName"=>$categoryParent->name_ro,"categoryNameRO"=>$categoryParent->name_ro,"categoryNameEN"=>$categoryParent->name_en,"categoryNameBG"=>$categoryParent->name_bg] );
                                             }
             $pidParentCategToGet=$categoryParent->parent_pid;
          }
 }
 else{
     $responce->status="error";
-    $responce->message="Nu poate fi identificata categoria!";
+    $responce->message=$this->t('nu_poate_fi_identificata_categoria');
 }
 $response
     ->setHeader('Cache-Control', 'private, max-age=0, must-revalidate')

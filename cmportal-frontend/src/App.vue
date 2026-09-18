@@ -251,22 +251,49 @@
         <br v-if="$q.platform.is.mobile">
         <div style="display: flex;flex-direction: column;justify-content: flex-start;">
           <div class="app__property--small" ><b>{{ $t('message.documente') }}</b></div>
-          <q-btn size="sm" padding="none" flat no-caps color="blue-grey-4" align="left" :label="$t('message.declaration_of_conformity')" style="font-size: 14px;" @click="openLink('https://color-metal.ro/sites/default/files/declaratie_de_conformitate.pdf')"/>
-          <q-btn size="sm" padding="none" flat no-caps color="blue-grey-4" align="left" :label="$t('message.terms')" style="font-size: 14px;" @click="openLink('https://color-metal.ro/sites/default/files/CONDITII-GENERALE-DE-VANZARE-COLOR-METAL-2021.pdf')"/>
-          <q-btn size="sm" padding="none" flat no-caps color="blue-grey-4" align="left" :label="$t('message.catalogs')" style="font-size: 14px;" @click="openLink('https://color-metal.ro/ro/cataloage')"/>
+          <q-btn size="sm" padding="none" flat no-caps color="blue-grey-4" align="left" :label="$t('message.declaration_of_conformity')" style="font-size: 14px;" @click="generarePdfDocument('declaratie', $t('message.declaration_of_conformity'))"/>
+          <q-btn size="sm" padding="none" flat no-caps color="blue-grey-4" align="left" :label="$t('message.terms')" style="font-size: 14px;" @click="generarePdfDocument('conditii', $t('message.terms'))"/>
+          <q-btn size="sm" padding="none" flat no-caps color="blue-grey-4" align="left" :label="$t('message.catalogs')" style="font-size: 14px;" @click="openLink('https://color-metal.bg/bg/cataloage')"/>
         </div>
         <br v-if="$q.platform.is.mobile">
         <div style="display: flex;flex-direction: column;justify-content: flex-start;">
           <div class="app__property--medium" style=""><!--SOCIAL MEDIA--></div>
           <div>
-            <q-btn padding="xs" color="blue-grey-4" :icon="ionLogoFacebook" flat style="width: 2rem;" @click="openLink('https://www.facebook.com/colormetalsrl/?locale=ro_RO')"/>
-            <q-btn padding="xs" color="blue-grey-4" :icon="ionLogoLinkedin" flat style="width: 2rem;" @click="openLink('https://ro.linkedin.com/company/color-metal-srl')"/>
-            <q-btn padding="xs" color="blue-grey-4" :icon="ionLogoYoutube" flat style="width: 2rem;" @click="openLink('https://www.youtube.com/channel/UCaTkVPnXUVzinvZR5dwfdfA')"/>
+            <q-btn padding="xs" color="blue-grey-4" :icon="ionLogoFacebook" flat style="width: 2rem;" @click="openLink('https://www.facebook.com/colormetalbulgaria')"/>
+            <q-btn padding="xs" color="blue-grey-4" :icon="ionLogoLinkedin" flat style="width: 2rem;" @click="openLink('https://www.linkedin.com/company/color-metal-bulgaria-%D0%BA%D0%BE%D0%BB%D0%BE%D1%80-%D0%BC%D0%B5%D1%82%D0%B0%D0%BB-%D0%B1%D1%8A%D0%BB%D0%B3%D0%B0%D1%80%D0%B8%D1%8F/')"/>
+            <!-- <q-btn padding="xs" color="blue-grey-4" :icon="ionLogoYoutube" flat style="width: 2rem;" @click="openLink('https://www.youtube.com/channel/UCaTkVPnXUVzinvZR5dwfdfA')"/> -->
           </div>
         </div>
         <br v-if="$q.platform.is.mobile">
       </div>
     </div>
+
+    <q-dialog v-model="pdfDocumentDialog" full-width>
+      <q-card class="my_card">
+        <q-card-section class="row items-center">
+          <div :class="$q.platform.is.mobile ? 'text-h8' : 'text-h6'">{{ pdfDocumentTitle }}</div>
+          <q-btn v-if="$q.platform.is.desktop" no-caps color="primary" v-ripple @click="downloadPDF" icon="download" style="margin-left: 1rem;cursor: pointer;">{{ $t('message.download') }}</q-btn>
+          <q-btn v-if="$q.platform.is.mobile" no-caps flat color="primary" icon="download" v-ripple @click="downloadPDF" style="cursor: pointer;"></q-btn>
+          <q-space />
+          <q-spinner v-if="isLoadingDocument"
+              color="black"
+              :size="$q.platform.is.mobile ? '1.5em' : '3em'"
+          />
+          <q-space v-if="isLoadingDocument"/>
+          <q-btn v-if="$q.platform.is.desktop" icon="close" flat round dense v-close-popup/>
+          <q-btn v-else icon="close" flat round dense v-close-popup @click="widthPdf=300"/>
+        </q-card-section>
+        <q-card-section v-if="$q.platform.is.mobile" class="my_card_2">
+          <q-btn v-if="!isLoadingDocument" @click="changeWitdhPdf('in')" icon="zoom_in" style="margin-bottom: 8px;" :loading="clickedZoom"></q-btn>
+          <q-btn v-if="!isLoadingDocument" @click="changeWitdhPdf('out')" icon="zoom_out" style="margin-left: 10px;margin-bottom: 8px;" :loading="clickedZoom"></q-btn>
+          <br>
+          <vue-pdf-embed :source="pdfDocument" :width="widthPdf"/>
+        </q-card-section>
+        <q-card-section v-else class="my_card_2">
+          <vue-pdf-embed :source="pdfDocument"/>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-layout>
 </template>
 
@@ -332,6 +359,23 @@ $label-color:#788896;
     flex-wrap: wrap;
   }
 }
+.my_card{
+  width: 90%;
+  height: 90%;
+  overflow-y: auto;
+}
+/* keep the title / download / close row in view while the PDF scrolls */
+.my_card > :first-child{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: white;
+}
+.my_card_2{
+  width: 100%;
+  height: 100%;
+}
+
 .ecran-container {
   display: flex;
   flex-direction: column;

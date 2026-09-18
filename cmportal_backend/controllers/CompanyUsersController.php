@@ -6,6 +6,7 @@ use Phalcon\Image\Factory;
 
 class CompanyUsersController extends Controller
 {
+use TranslatesMessages;
 
 private $companyCode;
 private $cif;
@@ -24,7 +25,7 @@ public function onConstruct()
         }
     else{
         $responceContent->status="error";
-        $responceContent->message="Invalid session! Please reconnect!";    
+        $responceContent->message=$this->t('invalid_session_please_reconnect');
     die(json_encode($responceContent));
     }
 }

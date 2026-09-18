@@ -1,9 +1,32 @@
 <?php
 //$actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 //die(var_dump($actual_link));
-// header("Access-Control-Allow-Origin: http://localhost:8080");
-//header("Access-Control-Allow-Credentials: true");
-// header("Access-Control-Allow-Headers: X-Requested-With");
+// CORS for local development only.
+//
+// The Vue dev server runs on its own port, so every API call from it is
+// cross-origin. Three things are needed and only the first was here before:
+//   - the origin echoed back (not "*", because axios sends withCredentials,
+//     and browsers reject "*" on credentialed requests);
+//   - Allow-Credentials, so the PHPSESSID cookie is sent and accepted;
+//   - an answer to the OPTIONS preflight. Phalcon Micro declares no OPTIONS
+//     routes, so a preflight used to fall through to notFound() and return
+//     404, which fails the check whatever headers are on it.
+//
+// Restricted to localhost, so production - where the built frontend is served
+// from the same origin and needs none of this - is unaffected.
+$corsOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+if ($corsOrigin !== '' && preg_match('#^https?://(localhost|127\.0\.0\.1)(:\d+)?$#', $corsOrigin)) {
+    header("Access-Control-Allow-Origin: $corsOrigin");
+    header("Access-Control-Allow-Credentials: true");
+    header("Vary: Origin");
+    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+        header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Content-Range, Content-Disposition");
+        header("Access-Control-Max-Age: 86400");
+        http_response_code(204);
+        exit; // before session_start, so a preflight does not open a session
+    }
+}
 /*
 if(isset($_SERVER['HTTP_ORIGIN'])){
     $http_origin = $_SERVER['HTTP_ORIGIN'];
@@ -37,6 +60,8 @@ use Phalcon\Session\Manager;
 use Phalcon\Session\Adapter\Stream;
 //use mikehaertl\wkhtmlto\Pdf;
 require_once('config.php');
+require_once(__DIR__ . '/Constants.php');
+require_once($pathToApps . '/controllers/TranslatesMessages.php');
 
 $loader = new \Phalcon\Autoload\Loader();
 /*
@@ -105,6 +130,15 @@ $di->set('dbSchema', function (){
 
 $di->set('passTokenApi', function (){
                                 return 'silviU99!';
+                                });
+
+$di->set('baseURLNavision', function (){
+                                GLOBAL $baseURLNavision;
+                                return $baseURLNavision;
+                                });
+$di->set('baseURLNavisionRO', function (){
+                                GLOBAL $baseURLNavisionRO;
+                                return $baseURLNavisionRO;
                                 });
 
 if(($_SERVER['HTTP_HOST']=='localhost:83'||$_SERVER['HTTP_HOST']=='regisdra-test'||$_SERVER['HTTP_HOST']=='regisdra-live')&& (strpos( $_SERVER['REQUEST_URI'], 'pdf_cover') !== false)){
@@ -249,6 +283,7 @@ $nomeclatoare
     ->setPrefix($apiPrefix.'/nomenclatoare')
     ->get('/countries/{rnd}', 'getCountries')
     ->get('/judete/{rnd}', 'getJudete')
+    ->get('/tipuri/{rnd}', 'getTipuri')
 ;
 $app->mount($nomeclatoare);
 
@@ -460,7 +495,7 @@ $salesApi
     ->post('/user/create/{cif}/{slid_user}/{token}','createUserPortal')
     ->get('/user/change_status_user/{cif}/{slid_user}/{newStatus}/{token}','changeStatusUserPortal')
     ->post('/user/update/{cif}/{slid_user}/{token}','updateUserPortal')
-    ->post('/user/multiple_companies/{cif}/{slid_user}/{token}', 'setUserToMultipleCompanies')
+    ->post('/user/multiple_companies/{cif}/{userid}/{slid_user}/{token}', 'setUserToMultipleCompanies')
     ->get('/user/{cif}/{userid}/{slid_user}/{token}','getInfoUserById')
 ;
 $app->mount($salesApi);

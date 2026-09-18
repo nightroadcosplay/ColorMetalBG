@@ -6,6 +6,7 @@ use Phalcon\Image\Factory;
 
 class TipuriController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -191,7 +192,7 @@ if($selectedCategory){
 }
 else{
     $responce->status="error";
-    $responce->message="Nu poate fi identificata categoria!";
+    $responce->message=$this->t('nu_poate_fi_identificata_categoria');
 }
 $response
     ->setHeader('Cache-Control', 'private, max-age=0, must-revalidate')
@@ -232,6 +233,12 @@ public function getCategoryImage($pid){
                 $arr= $this->db->fetchAll("SELECT distinct size_type
                                                    FROM ".$this->dbSchema.".nom_products p
                                            where p.is_active = 'y' and  p.pid_category=".$category->pid." order by size_type");
+                // Translations follow the type's RO text, not its position: a new
+                // type sorting in ahead of it must not hand it another type's names.
+                $translations = [];
+                foreach(TipuriModel::find(['conditions' => 'pid_category = ?1', 'bind' => [1 => $category->pid]]) as $existing) {
+                    $translations[trim((string)$existing->size_type_ro)] = $existing;
+                }
                 foreach($arr as $index => $size){
                     // array_push($responce->arrType,$size['size_type']);
                     // var_dump($index, $size['size_type']);
@@ -248,7 +255,10 @@ public function getCategoryImage($pid){
                     }
                     $tip->pid_category = $category->pid;
                     $tip->type_id = $category->pid . '_' . $index;
-                    $tip->size_type = $size['size_type'];
+                    $tip->size_type_ro = $size['size_type'];
+                    $known = $translations[trim((string)$size['size_type'])] ?? null;
+                    $tip->size_type_en = $known ? $known->size_type_en : null;
+                    $tip->size_type_bg = $known ? $known->size_type_bg : null;
                     if($tip-> save() === false) {
                         $responce->status="error";
                         $responce->message='';
@@ -312,7 +322,10 @@ public function getCategoryImage($pid){
                         array_push($arrTip, [
                             "appid"=>$tip->appid,
                             "pid"=>$tip->pid_category,
-                            "name"=>$tip->size_type,
+                            "name"=>$tip->size_type_ro,
+                            "name_ro"=>$tip->size_type_ro,
+                            "name_en"=>$tip->size_type_en ?: $tip->size_type_ro,
+                            "name_bg"=>$tip->size_type_bg ?: $tip->size_type_ro,
                             "is_tip" => 'y'
                         ]);
                     }
@@ -339,7 +352,10 @@ public function getCategoryImage($pid){
                     array_push($arrTip, [
                         "appid"=>$tip->appid,
                         "pid"=>$tip->pid_category,
-                        "name"=>$tip->size_type,
+                        "name"=>$tip->size_type_ro,
+                        "name_ro"=>$tip->size_type_ro,
+                        "name_en"=>$tip->size_type_en ?: $tip->size_type_ro,
+                        "name_bg"=>$tip->size_type_bg ?: $tip->size_type_ro,
                         "is_tip" => 'y'
                     ]);
                 }
@@ -394,7 +410,7 @@ public function getCategoryImage($pid){
             $responce->tip = $tip;
         } else {
             $responce->status="error";
-            $responce->message = 'Nu am gasit tipul!';
+            $responce->message = $this->t('nu_am_gasit_tipul');
 
         }
 
@@ -480,8 +496,29 @@ public function getCategoryImage($pid){
                 ->toFile($filePathAndNameAsJpg, 'image/jpeg');      // convert to JPG and save a copy to new-image.png
             }
         }
+        // The EN / BG names. The RO text is not edited here: it is the value
+        // nom_products, baskets and offers store and match on, and the sync
+        // keeps it in step with the products.
+        $tip = TipuriModel::findFirst([
+            'conditions' => 'appid = ?1',
+            'bind' => [1 => $_POST['appid'] ?? 0]
+        ]);
+        if($tip) {
+            $tip->size_type_en = trim($_POST['size_type_en'] ?? '') ?: null;
+            $tip->size_type_bg = trim($_POST['size_type_bg'] ?? '') ?: null;
+            if($tip->save() === false) {
+                $responce->status="error";
+                foreach ($tip->getMessages() as $message) {
+                    $responce->message.=$message."\n";
+                }
+                $response
+                ->setJsonContent($responce)
+                ->send();
+                return;
+            }
+        }
         $responce->status="success";
-        $responce->message="Tip salvat cu succes!";
+        $responce->message=$this->t('tip_salvat_cu_succes');
         $response
         ->setJsonContent($responce)
         ->send();
@@ -500,7 +537,7 @@ public function getCategoryImage($pid){
         unlink($this->pathToApps.$filePath);
 
         $responce->status="success";
-        $responce->message="Imagine stearsa!";
+        $responce->message=$this->t('imagine_stearsa');
         $response
         ->setJsonContent($responce)
         ->send();

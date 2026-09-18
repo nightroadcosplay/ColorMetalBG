@@ -1,6 +1,14 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-<div class="q-pa-sm ecran-container-oferta ">
+<div class="ecran-container">
+  <q-bar v-if="$q.platform.is.desktop" class="page__bar">
+    <q-btn dense flat icon="arrow_back" color="black" size="md" @click="onBack">
+      <q-tooltip content-class="bg-grey text-white">{{$t('message.close')}}</q-tooltip>
+    </q-btn>
+    <q-space />
+    <div class="page__bar--title">{{pageTitle}}</div>
+    <q-space />
+  </q-bar>
   <div v-if="showBrowseArticles">
     <BrowseCategories v-if="!pidForBrowseCategoryHasArticles" :pid="pidForBrowseCategory" :typeOfAccess="'fromOferta'"/>
     <BrowseArticles v-if="pidForBrowseCategoryHasArticles" :pidCategory="pidForBrowseCategory" :typeOfAccess="'fromOferta'" />
@@ -110,7 +118,7 @@
           >
             <template v-slot:error>
               <div class="absolute-full flex flex-center bg-negative text-white">
-                Cannot load image
+                {{$t('message.cannot_load_image')}}
               </div>
             </template>
           </q-img>
@@ -128,7 +136,7 @@
             <span v-if="item.d">{{$t('message.diameter')}} {{item.d}} mm </span>
             <span v-if="item.h">{{$t('message.height')}} {{item.h}} mm </span>
             <span v-if="item.a">{{$t('message.aliaj')}} {{item.a}} </span>
-            <span v-if="item.k">Tip {{item.k}}  </span>
+            <span v-if="item.k">{{$t('message.type')}} {{typeLabel(item.k)}}  </span>
           </span>
           <span v-if="item.cuDebitare && item.cuDebitare=='y'" class="app__color--semigray" style="font-weight: lighter;">
             {{item.nrBuc}} {{$t('message.cutted_nr')}} <span v-if="item.sizeLengthFromSales">{{$t('message.length')}} {{item.sizeLengthFromSales}} mm </span> <span v-if="item.sizeWidthFromSales"> {{$t('message.width')}} {{item.sizeWidthFromSales}} mm </span>
@@ -150,8 +158,8 @@
           </div>
         </div>
         <div style="display: flex; flex-direction: column; grid-area: quantity;">
-          <div v-if="item.tip_um == 'um1' || item.tip_um == 'um12'" style="min-width: 110px; min-height: 25px;">{{item.q1.toFixed(2)}} {{item.um1}}</div>
-          <div v-if="item.tip_um == 'um2' || item.tip_um == 'um12'"  style="min-width: 110px; min-height: 25px;">{{item.q2.toFixed(2)}} {{item.um2}}</div>
+          <div v-if="showQtyUm1(item)" style="min-width: 110px; min-height: 25px;">{{item.q1.toFixed(2)}} {{$umLabel(item.um1)}}</div>
+          <div v-if="item.tip_um == 'um2' || item.tip_um == 'um12'"  style="min-width: 110px; min-height: 25px;">{{item.q2.toFixed(2)}} {{$umLabel(item.um2)}}</div>
           
           <span v-if="$q.platform.is.mobile && !item.itemChanged" style="min-width: 110px; min-height: 25px;">{{$t('message.total_amount')}}</span>
           <span v-if="$q.platform.is.mobile && !item.itemChanged" style="min-width: 110px; min-height: 25px;">{{$t('message.delivery_term')}}</span>
@@ -159,10 +167,10 @@
         <div v-if="!item.itemChanged"  style="display: flex; flex-direction: column; grid-area: price;">
           <div v-if="item.tip_um == 'um1' || item.tip_um == 'um12'" class="app__money__value--large" style="min-width: 110px; min-height: 25px;">{{offerHeader.idValuta == 'RON' ? Number(item.pretMediuCalculatUM1RON).toFixed(2) 
                   : offerHeader.idValuta == 'EUR' ? Number(item.pretMediuCalculatUM1EUR).toFixed(2)  
-                  : Number(item.pretMediuCalculatUM1HUF).toFixed(2) }} {{ offerHeader.idValuta }} / {{item.um1}}</div>
+                  : Number(item.pretMediuCalculatUM1HUF).toFixed(2) }} {{ offerHeader.idValuta }} / {{$umLabel(item.um1)}}</div>
           <div v-if="item.tip_um == 'um2' || item.tip_um == 'um12'" class="app__money__value--large" style="min-width: 110px; min-height: 25px;">{{offerHeader.idValuta == 'RON' ? Number(item.pretMediuCalculatUM2RON).toFixed(2) 
                   : offerHeader.idValuta == 'EUR' ? Number(item.pretMediuCalculatUM2EUR).toFixed(2) 
-                  : Number(item.pretMediuCalculatUM2HUF).toFixed(2)}} {{offerHeader.idValuta}} / {{item.um2}}</div>
+                  : Number(item.pretMediuCalculatUM2HUF).toFixed(2)}} {{offerHeader.idValuta}} / {{$umLabel(item.um2)}}</div>
           <div v-if="item.discount_proc > 0 && $q.platform.is.desktop" style="min-width: 110px; min-height: 25px;">-{{ item.discount_proc }} %</div>
           <span v-if="$q.platform.is.mobile && item.appid!='0'" class="app__money__value--large" style="min-width: 110px; min-height: 25px;">{{offerHeader.idValuta == 'RON' ? Number(item.valFinalaFaraTvaRON).toFixed(2) : offerHeader.idValuta == 'EUR' ? Number(item.valFinalaFaraTvaEUR).toFixed(2) : Number(item.valFinalaFaraTvaHUF).toFixed(2)}} {{ offerHeader.idValuta }}</span>
           <span v-if="$q.platform.is.mobile && item.appid!='0'" :class=" item.termenLivrare == offerHeader.termenLivrareSolicitat ? 'app__money__value--large' : 'text_termen_livrare'" style="min-width: 110px; min-height: 25px;">{{item.termenLivrare}}</span>
@@ -183,8 +191,8 @@
   <q-dialog v-model="fixed" full-width>
     <q-card class="my_card" >
       <q-card-section class="row items-center">
-        <div :class="$q.platform.is.mobile ? 'text-h8' : 'text-h6'">Oferta {{offerHeader.offerSlid}}</div>
-        <q-btn v-if="$q.platform.is.desktop" no-caps color="primary" v-ripple @click="downloadPDF" icon="download" style="margin-left: 1rem;cursor: pointer;">Download</q-btn>
+        <div :class="$q.platform.is.mobile ? 'text-h8' : 'text-h6'">{{$t('message.offer')}} {{offerHeader.offerSlid}}</div>
+        <q-btn v-if="$q.platform.is.desktop" no-caps color="primary" v-ripple @click="downloadPDF" icon="download" style="margin-left: 1rem;cursor: pointer;">{{$t('message.download')}}</q-btn>
         <q-btn v-if="$q.platform.is.mobile" no-caps flat color="primary" icon="download" v-ripple @click="downloadPDF" style="cursor: pointer;"></q-btn>
         <q-space />
         <q-spinner v-if="isLoadingOffer"
@@ -213,30 +221,28 @@
 
 <style scoped lang="scss">
 @import "../../assets/mixins";
-.ecran-container-oferta {
+.ecran-container {
   display: flex;
   flex-direction: column;
-  margin: 0 auto;
-  justify-content: flex-start;
 
   @include media_small {
-    padding-left: 1vw;
-    padding-right: 1vw;
+    padding-left: 5vw;
+    padding-right: 5vw;
     background-color: white;
   }
 
   @include media_medium {
-    padding-top: 10px;
+    padding-top: 5vh;
     padding-left: 2vw;
     padding-right: 2vw;
     background-color: white;
   }
 
   @include media_large {
-    padding-top: 20px;
-    padding-left: 1vw;
-    padding-right: 1vw;
-    max-width:1200px;
+    padding-top: 5vh;
+    padding-left: 2vw;
+    padding-right: 2vw;
+    background-color: white;
   }
 }
 
@@ -390,9 +396,28 @@
   width:100%; 
 }
 
+.page__bar{
+  background: transparent;
+  margin-bottom: 1rem;
+}
+
+.page__bar--title{
+  color: #788896;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
 .my_card{
   width: 90%;
   height: 90%;
+  overflow-y: auto;
+}
+/* keep the title / download / close row in view while the PDF scrolls */
+.my_card > :first-child{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: white;
 }
 .my_card_2{
   width: 100%;

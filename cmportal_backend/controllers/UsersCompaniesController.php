@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class UsersCompaniesController extends Controller
 {
+use TranslatesMessages;
 
 	public function indexAction()
     {
@@ -52,7 +53,7 @@ class UsersCompaniesController extends Controller
                     $responce->status = 'success';
                 } else {
                     $responce->status = 'error';
-                    $responce->message = 'No companies for this user';
+                    $responce->message = $this->t('no_companies_for_this_user');
                 }
             } else {
                 $companies = VUsersCompanies::find([
@@ -73,12 +74,12 @@ class UsersCompaniesController extends Controller
                     $responce->status = 'success';
                 } else {
                     $responce->status = 'error';
-                    $responce->message = 'No companies for this user';
+                    $responce->message = $this->t('no_companies_for_this_user');
                 }
             }
         } else {
             $responce->status = 'error';
-            $responce->message = 'Nu poate fi identificat userul in baza de date';
+            $responce->message = $this->t('nu_poate_fi_identificat_userul_in_baza_de_date');
         }
         
 
@@ -111,19 +112,26 @@ class UsersCompaniesController extends Controller
             if($company) {
                 $user->cif = $company->cif;
                 $user->company_code = $company->company_code;
-                $user->save();
+                if($user->save()===false) {
+                    $responce->status="error";
+                    $responce->message=$this->t('error_la_adaugare_utilizator_la_o_noua_companie_in');
+                    $messages = $user->getMessages();
+                    if($messages) {
+                        foreach ($messages as $message) {$responce->message.=$message;}
+                    }
+                } else {
+                    $this->session->set('companyCode', $user->company_code);
+                    $this->session->set('cif', $user->cif);
 
-                $this->session->set('companyCode', $user->company_code);
-                $this->session->set('cif', $user->cif);
-
-                $responce->status = 'success';
-                $responce->message = 'Date companie schimbate cu success';
-                array_push($responce->companies, [
-                    'userid' => $company->userid,
-                    'company_code' => $company->company_code,
-                    'cif' => $company->cif,
-                    'denumire' => $company->company_name
-                ]);
+                    $responce->status = 'success';
+                    $responce->message = $this->t('date_companie_schimbate_cu_success');
+                    array_push($responce->companies, [
+                        'userid' => $company->userid,
+                        'company_code' => $company->company_code,
+                        'cif' => $company->cif,
+                        'denumire' => $company->company_name
+                    ]);
+                }
             } else {
                 $userCompany = CompanyModel::findFirstByCif($cif);
                 if($userCompany) {
@@ -134,7 +142,7 @@ class UsersCompaniesController extends Controller
 
                     if($company->save()===false) {
                         $responce->status="error";
-                        $responce->message='Error la adaugare utilizator la o noua companie in Portal!';
+                        $responce->message=$this->t('error_la_adaugare_utilizator_la_o_noua_companie_in');
                         $messages = $company->getMessages();
                         if($messages) {
                             foreach ($messages as $message) {$responce->message.=$message;}
@@ -148,7 +156,7 @@ class UsersCompaniesController extends Controller
                         $this->session->set('cif', $user->cif);
 
                         $responce->status = 'success';
-                        $responce->message = 'Date companie schimbate cu success';
+                        $responce->message = $this->t('date_companie_schimbate_cu_success');
                         array_push($responce->companies, [
                             'userid' => $company->userid,
                             'company_code' => $company->company_code,
@@ -158,12 +166,12 @@ class UsersCompaniesController extends Controller
                     }
                 } else {
                     $responce->status = 'error';
-                    $responce->message = 'Nu poate fi identificata compania in baza de date';
+                    $responce->message = $this->t('nu_poate_fi_identificata_compania_in_baza_de_date');
                 }
             }
         } else {
             $responce->status = 'error';
-            $responce->message = 'Nu poate fi identificat userul in baza de date';
+            $responce->message = $this->t('nu_poate_fi_identificat_userul_in_baza_de_date');
         }
 
         $response

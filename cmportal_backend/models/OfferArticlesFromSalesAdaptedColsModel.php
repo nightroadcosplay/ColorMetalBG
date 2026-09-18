@@ -4,6 +4,7 @@ use Phalcon\Mvc\Model;
 class OfferArticlesFromSalesAdaptedColsModel extends Model
 {
     public $offerSlid;
+    public $kgFromUm2;
     public $productCode;
     public $categoryPid;
     public $productNameRO;
@@ -91,6 +92,7 @@ class OfferArticlesFromSalesAdaptedColsModel extends Model
                     "offer_slid"=>"offerSlid",
                     "pid_product"=>"productPid",
                     "pid_category"=>"categoryPid",
+                    "kg_from_um2"=>"kgFromUm2",
                     "product_code"=>"productCode",
                     "product_name_ro"=>"productNameRO",
                     "product_name_en"=>"productNameEN",

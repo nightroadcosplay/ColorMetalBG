@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class ResetPasswordFromSalesToPortalController extends Controller
 {
+    use TranslatesMessages;
 
     public function resetTokenForPassword($slid_user,$tokenId,$tokenHash){
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -20,14 +21,14 @@ class ResetPasswordFromSalesToPortalController extends Controller
         $logToken = new LogTokenidFromSalesController();
         if(!$logToken->check($tokenId)){
             $responce->status="error";
-            $responce->message="2Token Invalid";
+            $responce->message=$this->t('2token_invalid');
            die(json_encode($responce));
         }
 
         //verificam sa corectitudinea hashului
         if(md5($this->passTokenApi.$tokenId)!=$tokenHash){
             $responce->status="error";
-            $responce->message="3Token Invalid";
+            $responce->message=$this->t('3token_invalid');
             die(json_encode($responce));
         }
         $user = Users::findFirst(
@@ -55,7 +56,7 @@ class ResetPasswordFromSalesToPortalController extends Controller
         }
         else{
             $responce->status="error";
-            $responce->message="4User Invalid";
+            $responce->message=$this->t('4user_invalid');
             die(json_encode($responce));
         }
         $response
@@ -83,16 +84,16 @@ class ResetPasswordFromSalesToPortalController extends Controller
         if($user) {
             if($user->token_reset_password != $tokenHash) {
                 $responce->status="error";
-                $responce->message="3Token Invalid";
+                $responce->message=$this->t('3token_invalid');
                 die(json_encode($responce));
             } else {
                 $responce->status="success";
-                $responce->message="Token Valid";
+                $responce->message=$this->t('token_valid');
                 $responce->user = $user;
             }
         } else {
             $responce->status="error";
-            $responce->message="4User Invalid";
+            $responce->message=$this->t('4user_invalid');
             die(json_encode($responce));
         }
         $response

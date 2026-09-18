@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class ApiNavGetAccountingBalance extends Controller
 {
+    use TranslatesMessages;
     private $logger;
     private $writeComputationalsToLogs = true;
     public $nav_success;
@@ -92,7 +93,7 @@ class ApiNavGetAccountingBalance extends Controller
         //if($f3->get('SESSION.user')=='BC'){die(var_dump($responce->balantaInNav));}
         }else{
            $responce->status = "error";
-           $responce->message = "Compania nu poate fi identficata!";
+           $responce->message = $this->t('compania_nu_poate_fi_identficata');
         }
         return $responce;
         //die(json_encode($responseObj));

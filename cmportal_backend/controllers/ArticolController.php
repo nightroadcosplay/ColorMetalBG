@@ -8,6 +8,7 @@ use Phalcon\Db\Enum;
 
 class ArticolController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -38,8 +39,11 @@ public function getArticol($pid,$rnd){
     $responce->product->lantHierarchyCategories='';
     $responce->product->code=$product->product_code;
 	$responce->product->productCode=$product->product_code;
-    $responce->product->name=$product->product_name_ro;
-	$responce->product->productName=$product->product_name_ro;
+    $responce->product->name=$this->localizedName($product->product_name_ro, $product->product_name_en, $product->product_name_bg);
+	$responce->product->productName=$responce->product->name;
+    $responce->product->productNameRO=$product->product_name_ro;
+    $responce->product->productNameEN=$product->product_name_en;
+    $responce->product->productNameBG=$product->product_name_bg;
     $responce->product->UMBase=$product->um_base;
     $responce->product->um1=$product->um1;
     $responce->product->um2=$product->um2;
@@ -94,7 +98,7 @@ public function getArticleByProductCode($productCode){
         $responce->product->enumPlacaBara='placa';
         $sqlAliaj="select * from ".$this->dbSchema.".nom_aliaje alj where alj.aliaj=:paliaj ";
         $densitate = $this->db->fetchOne($sqlAliaj,Enum::FETCH_ASSOC,['paliaj'=>$product->size_alloy]);
-        $responce->product->densitate=$densitate['kg_per_dmc'];
+        $responce->product->densitate = is_array($densitate) ? ($densitate['kg_per_dmc'] ?? null) : null;
     }
     if(!is_null($product->size_diameter) && is_null($product->size_thickness)){
         $responce->product->enumPlacaBara='bara';
@@ -105,7 +109,10 @@ public function getArticleByProductCode($productCode){
     $responce->product->categoryPid=$product->pid_category;
     $responce->product->lantHierarchyCategories='';
     $responce->product->code=$product->product_code;
-    $responce->product->name=$product->product_name_ro;
+    $responce->product->name=$this->localizedName($product->product_name_ro, $product->product_name_en, $product->product_name_bg);
+    $responce->product->productNameRO=$product->product_name_ro;
+    $responce->product->productNameEN=$product->product_name_en;
+    $responce->product->productNameBG=$product->product_name_bg;
     $responce->product->UMBase=$product->um_base;
     $responce->product->um1=$product->um1;
     $responce->product->um2=$product->um2;
@@ -267,10 +274,10 @@ public function getAllProducts($rowsPerPage,$pageNumber,$rnd){
         $responce->is_active=$product->is_active;
         if($product && $product->is_active == 'y') {
             $responce->status="success";
-            $responce->message= $product->product_name_ro." este activ in portal";
+            $responce->message= $this->t('este_activ_in_portal', $this->localizedName($product->product_name_ro, $product->product_name_en, $product->product_name_bg));
         } else {
             $responce->status="success";
-            $responce->message= $productCode." nu este activ in portal";
+            $responce->message= $this->t('nu_este_activ_in_portal', $productCode);
         }
 
         $response

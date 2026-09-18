@@ -1,7 +1,7 @@
 <template>
     <div class="login-form-container">
       <div class="app-center-content-horizontal">
-        <img class="logo-container" src="@/assets/color_metal_logo-partner-engineering.png">
+        <img class="logo-container" src="@/assets/color-metal-nobackground.png">
       </div>
       <p class="app-center-content-horizontal title_portal">{{ $t('message.portal_partners') }}</p>
       <div style="display: flex;align-items: center;max-height: 36px;min-height: 36px;width: 100%;justify-content: center;" class="q-px-sm">

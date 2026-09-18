@@ -8,7 +8,8 @@ use Phalcon\Mvc\View;
 use Dompdf\Dompdf;
 class AccountingBalanceController extends Controller
 {
-    
+    use TranslatesMessages;
+
  private $cif='x';
    
 public function setCompany()
@@ -36,7 +37,7 @@ public function setCompany()
             $responce->balantaInNav=$raspunsDinNav->balantaInNav;
         }else{
         $responce->status="error";
-        $responce->message="Eroare interogare balanta contabila!";
+        $responce->message=$this->t('eroare_interogare_balanta_contabila');
         }
 
 
@@ -62,9 +63,11 @@ public function setCompany()
         //die(var_dump($raspunsDinNav));
         if($raspunsDinNav->status='success'){
             //die(var_dump($raspunsDinNav->balantaInNav));
+               $lang = $this->session->get('userLocale', 'en');
                $params = [
                         'balantaInNav' =>$raspunsDinNav->balantaInNav,
-                        'cif'=>$this->cif
+                        'cif'=>$this->cif,
+                        't'=>function($key) use ($lang) { return Constants::translate($key, $lang); }
                     ];
         }
 
@@ -100,9 +103,11 @@ public function setCompany()
         //die(var_dump($raspunsDinNav));
         if($raspunsDinNav->status='success'){
             //die(var_dump($raspunsDinNav->balantaInNav));
+               $lang = $this->session->get('userLocale', 'en');
                $params = [
                         'balantaInNav' =>$raspunsDinNav->balantaInNav,
-                        'cif'=>$this->cif
+                        'cif'=>$this->cif,
+                        't'=>function($key) use ($lang) { return Constants::translate($key, $lang); }
                     ];
         }
 

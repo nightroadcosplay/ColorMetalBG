@@ -13,7 +13,7 @@
       >
         <template v-slot:error>
           <div class="absolute-full flex flex-center bg-negative text-white">
-            Cannot load image
+            {{$t('message.cannot_load_image')}}
           </div>
         </template>
       </q-img>

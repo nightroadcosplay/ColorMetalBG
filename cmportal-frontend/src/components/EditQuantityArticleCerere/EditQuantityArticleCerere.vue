@@ -74,16 +74,16 @@
           <div style="display: flex;justify-content: flex-start; padding-top:2rem;padding-bottom:2rem;padding-right: 2px;min-height:7rem; ">
             <q-input
                 v-if="selectedSize.um1 && selectedSize.um1.length>0 && !HideUm1IfBucDebit"
-                v-model.number="qUm1"
+                v-model.number="qUm1Input"
                 type="number"
-                :readonly="selectedSize.cuDebitare && dorescDebitare"
+                :readonly="(selectedSize.cuDebitare && dorescDebitare) || ReadonlyKgForUm2Category"
                 outlined
                 label-slot
                 style="max-width: 7rem;"
                 @update:model-value="coreleazaUm1Um2('um1')"
             >
               <template v-slot:label>
-                <span style="font-weight: bold;font-size:1.2rem;">{{selectedSize.um1}}</span>
+                <span style="font-weight: bold;font-size:1.2rem;">{{$umLabel(selectedSize.um1)}}</span>
               </template>
             </q-input>
 
@@ -98,18 +98,18 @@
                 @update:model-value="coreleazaUm1Um2('um2')"
             >
               <template v-slot:label>
-                <span style="font-weight: bold;font-size:1.2rem;">{{selectedSize.um2}}</span>
+                <span style="font-weight: bold;font-size:1.2rem;">{{$umLabel(selectedSize.um2)}}</span>
               </template>
             </q-input>
             <div v-if="(selectedSize.um1 || selectedSize.um2) && $q.platform.is.desktop" style="margin-left: 24px;margin-top: -20px;">
               <span style="text-align: center;display: flex;align-items: center;">{{$t('message.tip_um_dorit_la_ofertare')}}</span>
               <div style="display: flex; flex-direction: row;">
                 <div v-if="(!HideUm1IfBucDebit || dorescDebitare) && (selectedSize.um1 != '' && selectedSize.um1 != null)" style="display: flex; flex-direction: column;align-items: center;">
-                  {{ selectedSize.um1 }}
+                  {{$umLabel(selectedSize.um1)}}
                   <q-checkbox size="xl" v-model="selectedUM1"  @update:model-value="val => changeTipUm(val, 1)"/>
                 </div>
                 <div v-if="(!HideUm2IfBucDebit || dorescDebitare) && (selectedSize.um2 != '' && selectedSize.um2 != null)" style="display: flex; flex-direction: column;align-items: center;">
-                  {{ selectedSize.um2 }}
+                  {{$umLabel(selectedSize.um2)}}
                   <q-checkbox size="xl" v-model="selectedUM2" @update:model-value="val => changeTipUm(val, 2)" />
                 </div>
               </div>
@@ -121,11 +121,11 @@
               <span style="text-align: center;display: flex;align-items: center;">{{$t('message.tip_um_dorit_la_ofertare')}}</span>
               <div style="display: flex; flex-direction: row;">
                 <div v-if="(!HideUm1IfBucDebit || dorescDebitare) && (selectedSize.um1 != '' && selectedSize.um1 != null)" style="display: flex; flex-direction: column;align-items: center;">
-                  {{ selectedSize.um1 }}
+                  {{$umLabel(selectedSize.um1)}}
                   <q-checkbox size="xl" v-model="selectedUM1"  @update:model-value="val => changeTipUm(val, 1)"/>
                 </div>
                 <div v-if="(!HideUm2IfBucDebit || dorescDebitare) && (selectedSize.um2 != '' && selectedSize.um2 != null)" style="display: flex; flex-direction: column;align-items: center;">
-                  {{ selectedSize.um2 }}
+                  {{$umLabel(selectedSize.um2)}}
                   <q-checkbox size="xl" v-model="selectedUM2" @update:model-value="val => changeTipUm(val, 2)" />
                 </div>
               </div>

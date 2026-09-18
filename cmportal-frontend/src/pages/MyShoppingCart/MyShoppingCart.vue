@@ -34,7 +34,7 @@
           >
             <template v-slot:error>
               <div class="absolute-full flex flex-center bg-negative text-white">
-                Cannot load image
+                {{$t('message.cannot_load_image')}}
               </div>
             </template>
           </q-img>
@@ -49,7 +49,7 @@
             <span v-if="item.d">{{$t('message.diameter')}} {{item.d}} mm </span>
             <span v-if="item.h">{{$t('message.height')}} {{item.h}} mm </span>
             <span v-if="item.a">{{$t('message.aliaj')}} {{item.a}} </span>
-            <span v-if="item.k">Tip {{item.k}}  </span>
+            <span v-if="item.k">{{$t('message.type')}} {{typeLabel(item.k)}}  </span>
           </span>
           <span v-if="item.dorescDebitare" class="app__color--semigray" style="font-weight: lighter;">
             {{item.qBuc}} {{$t('message.cutted_nr')}} <span v-if="item.cuttingLength">{{$t('message.length')}} {{item.cuttingLength}} mm </span><span v-if="item.cuttingWidth"> {{$t('message.width')}} {{item.cuttingWidth}} mm </span>
@@ -57,8 +57,8 @@
           <span v-if="item.observatii" class="app__color--semigray" style="font-weight: lighter; font-style: italic;">{{ $t('message.remarks') }}: {{ item.observatii }}</span>
         </div>
         <div class="app__property--medium">
-          <div v-if="item.tip_um == 'um12' || item.tip_um == 'um1'">{{item.qUm1}} {{item.um1}}</div>
-          <div v-if="item.um2 && item.um2.length>0 && (item.tip_um == 'um12' || item.tip_um == 'um2')">{{item.qUm2}} {{item.um2}}</div>
+          <div v-if="showQtyUm1(item)">{{item.qUm1}} {{$umLabel(item.um1)}}</div>
+          <div v-if="item.um2 && item.um2.length>0 && (item.tip_um == 'um12' || item.tip_um == 'um2')">{{item.qUm2}} {{$umLabel(item.um2)}}</div>
         </div>
         <!--<div >{{item.q_um_base}} Kg</div>-->
         <div  class="shopping_cart__container--btns" >

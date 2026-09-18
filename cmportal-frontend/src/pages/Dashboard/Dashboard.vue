@@ -83,22 +83,22 @@
   <div  class="dashboard__section">
     <div  class="dashboard__div__title">{{$t('message.info_util')}}</div>
     <div class="dashboard__div__content">
-      <div class="dashboard__div__parameter" v-ripple @click="openLink('https://color-metal.ro/ro/tehnipedia')">
+      <div class="dashboard__div__parameter" v-ripple @click="openLink('https://color-metal.bg/bg/tehnipedia')">
         <q-icon color="primary" style="font-size:1.4rem;padding-right: 0.3rem;"><img src="@/assets/tehnipedia.png"/></q-icon>
         {{$t('message.tehnipedia')}}
       </div>
-      <div class="dashboard__div__parameter" v-ripple @click="openLink('https://color-metal.ro/ro/service-center')">
+      <!-- <div class="dashboard__div__parameter" v-ripple @click="openLink('https://color-metal.ro/ro/service-center')">
         <q-icon name="call" style="font-size:1.4rem;padding-right: 0.3rem;"/>
         {{$t('message.service_center')}}
-      </div>
-      <div class="dashboard__div__parameter" v-ripple @click="openLink('https://color-metal.ro/ro/calculator-greutate')">
+      </div> -->
+      <div class="dashboard__div__parameter" v-ripple @click="openLink('https://color-metal.bg/bg/kalkulator-za-teglo')">
         <q-icon style="font-size:1.4rem;padding-right:0.3rem;"><img src="@/assets/calculator.png"/></q-icon>
         {{$t('message.specific_weight_calculator')}}
       </div>
-      <div class="dashboard__div__parameter" v-ripple @click="openLink('https://color-metal.ro/ro/harta-rute-de-distributie')">
+      <!-- <div class="dashboard__div__parameter" v-ripple @click="openLink('https://color-metal.ro/ro/harta-rute-de-distributie')">
         <q-icon color="primary" style="font-size:1.4rem;padding-right: 0.3rem;"><img src="@/assets/rute.png"/></q-icon>
         {{$t('message.rute_distributie')}}
-      </div>
+      </div> -->
     </div>
   </div>
 

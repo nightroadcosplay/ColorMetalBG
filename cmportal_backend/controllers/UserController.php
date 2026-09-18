@@ -5,6 +5,8 @@ use Phalcon\Filter\FilterFactory;
 use Phalcon\Encryption\Security;
 class UserController extends Controller
 {
+    use TranslatesMessages;
+
     private $userid='x';
     private $cif='x';
     private $isConnected=false;
@@ -38,7 +40,7 @@ $user = VUsers::findFirst(
                                     [
                                     'conditions' => 'userid = ?1',
                                     'bind'       => [
-                                                    1 =>  strtolower($userId)
+                                                    1 =>  strtolower((string)$userId)
                                                     ]
                                     ]
                 );
@@ -53,11 +55,12 @@ $user = VUsers::findFirst(
     $this->session->set('userId', $user->userid);
     $this->session->set('companyCode', $user->companyCode);
     $this->session->set('cif', $user->cif);
+    $this->session->set('userLocale', $user->lang);
 
 //die(var_dump($this->session->get('isConnected')));
     $contents = [
                 'status'=>'success',
-                'message'=>'Token valid',
+                'message'=>$this->t('token_valid'),
                 'user' => [
                     "appid"=> $user->appid,
                     "userid"=> $user->userid,
@@ -77,7 +80,7 @@ $user = VUsers::findFirst(
     else{
     $contents = [
                 'status'=>'error',
-                'message'=>'Sunteti deconectat de la aplicatie!'
+                'message'=>$this->t('sunteti_deconectat_de_la_aplicatie')
             ];
     }
 
@@ -128,11 +131,12 @@ $vUserCompany = VUsers::findFirstByUserid(strtolower($userId));
             $this->session->set('userId', $user->userid);
             $this->session->set('companyCode', $user->company_code);
             $this->session->set('cif', $user->cif);
+            $this->session->set('userLocale', $user->lang);
         }
         else{
              $contents = [
                 'status'=>'error',
-                'message'=>'Parola incorecta!'
+                'message'=>$this->t('parola_incorecta')
             ];
         }
     } else {
@@ -142,7 +146,7 @@ $vUserCompany = VUsers::findFirstByUserid(strtolower($userId));
         $this->security->hash(rand());
         $contents = [
                 'status'=>'error',
-                'message'=>'Date de logare incorecte!'
+                'message'=>$this->t('date_de_logare_incorecte')
             ];
     }
 
@@ -165,12 +169,12 @@ $vUserCompany = VUsers::findFirstByUserid(strtolower($userId));
             $user->save();
             $contents = [
                 'status'=>'success',
-                'message'=>'parola setata cu succes'
+                'message'=>$this->t('parola_setata_cu_succes')
             ];
         } else {
              $contents = [
                 'status'=>'error',
-                'message'=>'Userul nu este in Portal!'
+                'message'=>$this->t('userul_nu_este_in_portal')
             ];
         }
         $response
@@ -215,7 +219,7 @@ $vUserCompany = VUsers::findFirstByUserid(strtolower($userId));
 
         }else{
             $responce->status="error";
-            $responce->message="Utilizator inexistent";
+            $responce->message=$this->t('utilizator_inexistent');
         }
         die(json_encode($responce));
     }
@@ -352,12 +356,12 @@ public function saveMyProfile($appid){
                     $logEvent->logEvent($user->appid,'edit','users');             
                 
                     $responce->status="success";
-                    $responce->message="Datele au fost salvate cu succes!";
+                    $responce->message=$this->t('datele_au_fost_salvate_cu_succes');
                 }
         }
         else{
             $responce->status="error";
-            $responce->message="Userul nu poate fi identificat!";//appid gresita
+            $responce->message=$this->t('userul_nu_poate_fi_identificat');//appid gresita
         }
         die(json_encode($responce));
     }
@@ -376,10 +380,10 @@ public function saveMyProfile($appid){
         $isConnected=$this->session->get('isConnected');
         if(isset($userid) && isset($isConnected)) {
             $responce->status="success";
-            $responce->message="session is active!";
+            $responce->message=$this->t('session_is_active');
         } else {
             $responce->status="error";
-            $responce->message="Sesiunea a expirat!";
+            $responce->message=$this->t('sesiunea_a_expirat');
         }
 
         $response
@@ -404,11 +408,12 @@ public function saveMyProfile($appid){
         if($user){
             $user->lang = $lang;
             $user->update();
+            $this->session->set('userLocale', $lang);
             $responce->status="success";
-            $responce->message="Datele au fost salvate cu succes!";
+            $responce->message=$this->t('datele_au_fost_salvate_cu_succes');
         } else {
             $responce->status="error";
-            $responce->message="Userul nu poate fi identificat!";//appid gresita
+            $responce->message=$this->t('userul_nu_poate_fi_identificat');//appid gresita
         }
         die(json_encode($responce));
     }

@@ -5,6 +5,7 @@ use Phalcon\Filter\FilterFactory;
 
 class AdminCategoryController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -61,7 +62,7 @@ if($category){
     }
     else{
         $responce->status="error";
-        $responce->message="Nu poate fi identificata categoria pentru modificare!";
+        $responce->message=$this->t('nu_poate_fi_identificata_categoria_pentru_modificare');
     }
 
 $response
@@ -86,12 +87,12 @@ if($category){
             }
         } else {
                 $responce->status="success";
-                $responce->message="Categoria fost stearsa!";
+                $responce->message=$this->t('categoria_fost_stearsa');
         }
     }
     else{
         $responce->status="error";
-        $responce->message="Nu poate fi identificata categoria pentru stergere!";
+        $responce->message=$this->t('nu_poate_fi_identificata_categoria_pentru_stergere');
     }
 
 $response
@@ -305,7 +306,7 @@ public function newCategory(){
             die(json_encode($responce));
     }else{
         $responce->status="success";
-        $responce->message="Categorie adaugata cu succes!";
+        $responce->message=$this->t('categorie_adaugata_cu_succes');
     }
 
     //mai departe ajunge numai daca nu sunt erori
@@ -351,7 +352,7 @@ public function editCategory($pid){
     $category = NomCategoryProduct::findFirstByPid($pid);
     if(!$category){
             $responce->status="error";
-            $responce->message="Nu poate fi identificata categoria pentru modificare.";
+            $responce->message=$this->t('nu_poate_fi_identificata_categoria_pentru_modificare');
             die(json_encode($responce));
     }
 
@@ -402,7 +403,7 @@ public function editCategory($pid){
             die(json_encode($responce));
     }else{
         $responce->status="success";
-        $responce->message="Categorie adaugata cu succes!";
+        $responce->message=$this->t('categorie_adaugata_cu_succes');
     }
 
     //mai departe ajunge numai daca nu sunt erori

@@ -14,7 +14,9 @@ interface TAjaxResponseSimple {
 interface TAjaxResponseGetArticleStock {
     status: string;
     message: string;
-    itemStock:number;
+    itemStockBG:number;
+    itemStockRO:number;
+    from:string;
 }
 
 

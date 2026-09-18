@@ -107,7 +107,7 @@ export default class Facturi extends Vue {
         vueInst.selectedBillNr = bill_nr;
         vueInst.pdfBase64 = '';
         vueInst.pdfTitle = '';
-        vueInst.popupTitle = 'Factura '+ bill_nr;
+        vueInst.popupTitle = (vueInst.$t('message.invoice') as string)+' '+ bill_nr;
         vueInst.isLoadingInvoice = true;      
         ServiceInvoice.downloadInvoice(bill_nr).then(response=>{
             // vueInst.$q.loading.hide();
@@ -146,7 +146,7 @@ export default class Facturi extends Vue {
                         vueInst.fixed = true;  
                         vueInst.pdfTitle = 'Certificate_'+bill_nr+'.pdf';
                         vueInst.pdfBase64 = 'data:application/pdf;base64,'+ response.message +'#title='+vueInst.pdfTitle;
-                        vueInst.popupTitle = 'Certificat '+bill_nr;
+                        vueInst.popupTitle = (vueInst.$t('message.certificate') as string)+' '+bill_nr;
                     } else {
                         vueInst.$q.notify({
                             color: 'red',
@@ -174,7 +174,7 @@ export default class Facturi extends Vue {
         vueInst.fixed = true;
         vueInst.pdfTitle = 'Certificate_'+certificat.ItemNo+'.pdf';  
         vueInst.pdfBase64 = 'data:application/pdf;base64,'+ certificat.Certificate+'#title='+vueInst.pdfTitle;
-        vueInst.popupTitle = 'Certificat '+certificat.ItemNo;
+        vueInst.popupTitle = (vueInst.$t('message.certificate') as string)+' '+certificat.ItemNo;
         vueInst.isLoadingInvoice = false;   
     }
 

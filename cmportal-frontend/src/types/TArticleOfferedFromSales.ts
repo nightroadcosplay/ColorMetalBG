@@ -16,6 +16,7 @@ export type TArticleOfferedFromSales = {
     q2 : number | null;
     um2 : string | null;
     um1_to_um2 : number | null;
+    kgFromUm2? : string | null;
     tip_um : string;
     nrBuc : number | null;
     qKg  : number | null;

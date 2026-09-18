@@ -8,6 +8,8 @@ import {TProductBasket} from '@/types/TProductBasket';
 import {TEnumPlacaBara} from '@/types/TEnumPlacaBara';
 import HierarchicalChainBrowseHeader from '@/components/HierarchicalChainBrowseHeader/HierarchicalChainBrowseHeader.vue'
 import {ArticolNullInBasket, CONFIG_ENV} from "@/config";
+import {isUmKg} from '@/modules/umLabel';
+import {effectiveUmRatio} from '@/modules/umDisplay';
 
 type TSize={
     "l":number,
@@ -111,15 +113,37 @@ export default class EditQuantityArticleCerere extends Vue {
     }
 
 
+    //Same rule as the browse screen: for a category that enters its quantity in
+    //um2 the weight follows from it, so the KG field is read-only, and when the
+    //conversion factor is 1 the input is left empty because it would only repeat
+    //the um2 figure. qUm1 keeps its value - it is what is saved and sent on.
+    public get ReadonlyKgForUm2Category():boolean{
+        const cuDebitare = !!(this.selectedSize.cuDebitare && this.dorescDebitare);
+        const um2Available = !!(this.selectedSize.um2 && this.selectedSize.um2.length>0 && !this.HideUm2IfBucDebit);
+        return !!this.item && this.item.kgFromUm2==='y' && !cuDebitare && um2Available && isUmKg(this.selectedSize.um1);
+    }
+
+    public get BlankQUm1Input():boolean{
+        return this.ReadonlyKgForUm2Category && effectiveUmRatio(this.selectedSize.um1_to_um2) === 1;
+    }
+
+    public get qUm1Input():number|string{
+        return this.BlankQUm1Input ? '' : this.qUm1;
+    }
+
+    public set qUm1Input(value:number|string){
+        this.qUm1 = typeof value === 'number' ? value : (Number(value) || 0);
+    }
+
     public get HideUm1IfBucDebit():boolean{
-        if(this.dorescDebitare && this.selectedSize.um1 && this.selectedSize.um1==='BUC'){
+        if(this.dorescDebitare && this.selectedSize.um1 && (this.selectedSize.um1==='BUC' || this.selectedSize.um1==='БРОЙ')){
             return true;
         }
         else{return false;}
     }
 
     public get HideUm2IfBucDebit():boolean{
-        if(this.dorescDebitare && this.selectedSize.um2 && this.selectedSize.um2==='BUC'){
+        if(this.dorescDebitare && this.selectedSize.um2 && (this.selectedSize.um2==='BUC' || this.selectedSize.um2==='БРОЙ')){
             return true;
         }
         else{return false;}
@@ -241,11 +265,11 @@ export default class EditQuantityArticleCerere extends Vue {
                 kg_per_buc = Math.round(((vueInst.cuttingLength*vueInst.cuttingWidth*vueInst.selectedThickness/1000000)*vueInst.densitate + Number.EPSILON) * 100) / 100
                 // console.log('coreleaza um1 um2 cu debitare ' + kg_per_buc + ' ' + qML + ' ' + qBuc);
 
-                if(vueInst.selectedSize.um1==='BUC') {
+                if(vueInst.selectedSize.um1==='BUC' || vueInst.selectedSize.um1==='БРОЙ') {
                     vueInst.qUm1 = vueInst.nrBucati;
                     vueInst.qUm2=Number((kg_per_buc*vueInst.qUm1).toFixed(2));
                 }
-                if(vueInst.selectedSize.um2==='BUC') {
+                if(vueInst.selectedSize.um2==='BUC' || vueInst.selectedSize.um2==='БРОЙ') {
                     vueInst.qUm2 = vueInst.nrBucati;
                     vueInst.qUm1=Number((kg_per_buc*vueInst.qUm2).toFixed(2));
                 }

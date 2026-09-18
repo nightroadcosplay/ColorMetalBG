@@ -18,7 +18,7 @@
   <div>
     <div v-for="category in hierarchicalChain" :key="category.categoryPid" @click="onGoToBrowseCategories(category.categoryPid)" class="breadcrumb__category">
       <q-icon name="arrow_right_alt" />
-      <span class="breadcrumb__category">{{category.categoryName}}</span>
+      <span class="breadcrumb__category">{{ $i18n.locale === 'ro' ? (category.categoryNameRO || category.categoryName) : $i18n.locale === 'en' ? (category.categoryNameEN || category.categoryName) : (category.categoryNameBG || category.categoryName) }}</span>
     </div>
   </div>
 

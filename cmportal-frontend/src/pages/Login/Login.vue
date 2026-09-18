@@ -218,6 +218,14 @@
 .my_card{
   width: 90%;
   height: 90%;
+  overflow-y: auto;
+}
+/* keep the title / download / close row in view while the PDF scrolls */
+.my_card > :first-child{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: white;
 }
 .my_card_2{
   width: 100%;

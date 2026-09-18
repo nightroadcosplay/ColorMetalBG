@@ -1,20 +1,10 @@
 addEventListener('message', function(e) {
     var data = e.data;
-    const URL_API = ( function() {
-        if ( location.hostname === 'localhost') {
-            return 'http://localhost:83/api'
-            //return 'https://portal-color.theappsonline.com/api'
-            //return 'http://regisdra-test/api';
-        } else {
-            //return 'http://localhost/api'
-            //return 'https://regis.theappsonline.com/api'
-            return '/api';
-        }
-    })();
+    const URL_API = '/api'; //relative, like the app: same origin in dev (proxied) and in production
 
 
     function getNewMessages(){
-        fetch(URL_API+'/users_mailbox/new_messages_for_me')
+        fetch(URL_API+'/users_mailbox/new_messages_for_me', {credentials: 'include'})
             .then(
                 function (response) {
                     if (response.status !== 200) {

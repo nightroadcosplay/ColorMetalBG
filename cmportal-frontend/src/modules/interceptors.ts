@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Notify,Loading } from 'quasar';
 
-export default function setup() {
+export default function setup(t: (key: string) => string): void {
     axios.interceptors.response.use((response) => {
         console.log('OK interceptors axios response=%o',response);
         if(response.data && response.data.status && response.data.status==='error' && response.data.message){
@@ -18,12 +18,18 @@ export default function setup() {
         }
         return response;
     }, (error) => {
-        console.log('Error interceptors axios response=%o, error.response.data=%o',error,error.response.data)
+        console.log('Error interceptors axios response=%o, error.response=%o',error,error.response)
         let error_details='';
-        if(error.response && error.response.data && error.response.data.status && error.response.data.status!='success' && error.response.data.message){
-            error_details =  Object.values(error.response).toString()+' (Mesaj aplicatie: '+error.response.data.message+')';
+        if(error.response){
+            if(error.response.data && error.response.data.status && error.response.data.status!='success' && error.response.data.message){
+                error_details =  Object.values(error.response).toString()+' ('+t('message.app_message')+': '+error.response.data.message+')';
+            }else{
+                error_details = Object.values(error.response).toString();
+            }
         }else{
-            error_details = Object.values(error.response).toString();
+            //no response at all - network failure, CORS, timeout or the backend is down.
+            //without this branch the interceptor threw before hiding the loader and notifying.
+            error_details = error.message ? error.message : t('message.network_error');
         }
         Loading.hide();
 

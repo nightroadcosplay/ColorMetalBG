@@ -10,6 +10,7 @@ import {ServiceBasket} from "@/services/ServiceBasket";
 import {getBasket} from "@/modules/getBasket";
 import basket from "@/store/basket";
 import { getFirstCategory } from '@/modules/utils';
+import {localizedTypeLabel} from '@/modules/typeLabel';
 
 @Options({
     name: "ArticoleFavorite",
@@ -23,6 +24,11 @@ export default class ArticoleFavorite extends Vue {
     public userStore = getModule(user);
     public storeBasket = getModule(basket);
     public storeFavorites = getModule(favorites);
+
+    // Type label in the current language; the RO text stays the stored value.
+    public typeLabel(sizeType: string|null|undefined): string {
+        return localizedTypeLabel(sizeType, this.$i18n.locale);
+    }
 
 
     get user(): TUser {

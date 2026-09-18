@@ -37,4 +37,21 @@ public function getJudete($rnd)
         ->send();
 }
 
+// Every type's name in each language, for the frontend to label types with.
+public function getTipuri($rnd)
+{
+    $response = new Response();
+    $responceContent = new stdClass();
+    $responceContent->status="success";
+    $responceContent->message="";
+    $responceContent->tipuri = TipuriModel::find([
+        'columns' => 'pid_category, size_type_ro, size_type_en, size_type_bg',
+        'order' => 'pid_category, type_id'
+    ])->toArray();
+
+    $response
+        ->setJsonContent($responceContent)
+        ->send();
+}
+
 }

@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class UserFromSalesToPortalController extends Controller
 {
+use TranslatesMessages;
 
     public function getInfoUser($cif,$slid_user,$token){
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -21,7 +22,7 @@ class UserFromSalesToPortalController extends Controller
         //verificam sa corectitudinea hashului
         if(md5($this->passTokenApi.$slid_user)!=$token){
             $responce->status="error";
-            $responce->message="3Token Invalid";
+            $responce->message=$this->t('3token_invalid');
             die(json_encode($responce));
         }
         //daca ajunge pana aici, inseamna ca a trecut de toate validarile
@@ -55,7 +56,7 @@ class UserFromSalesToPortalController extends Controller
         }
         else{
             $responce->status="error";
-            $responce->message="Nu exista user in Portal!";
+            $responce->message=$this->t('nu_exista_user_in_portal');
            die(json_encode($responce));
         }
         $response
@@ -76,7 +77,7 @@ class UserFromSalesToPortalController extends Controller
         //verificam sa corectitudinea hashului
         if(md5($this->passTokenApi.$slid_user)!=$token){
             $responce->status="error";
-            $responce->message="3Token Invalid";
+            $responce->message=$this->t('3token_invalid');
             die(json_encode($responce));
         }
         //daca ajunge pana aici, inseamna ca a trecut de toate validarile
@@ -126,7 +127,7 @@ class UserFromSalesToPortalController extends Controller
         }
         else{
             $responce->status="error";
-            $responce->message="Nu exista user in Portal!";
+            $responce->message=$this->t('nu_exista_user_in_portal');
             die(json_encode($responce));
         }
         $response
@@ -150,7 +151,7 @@ class UserFromSalesToPortalController extends Controller
         //verificam sa corectitudinea hashului
         if(md5($this->passTokenApi.$cif.$slid_user)!=$token){
             $responce->status="error";
-            $responce->message="33Token Invalid";
+            $responce->message=$this->t('33token_invalid');
             die(json_encode($responce));
         }
         //daca ajunge pana aici, inseamna ca a trecut de toate validarile
@@ -173,7 +174,7 @@ class UserFromSalesToPortalController extends Controller
         if($company && $company->status=='client'){
                 if($user && $user->cif==$cif) {
                     $responce->status="error";
-                    $responce->message="Utilizatorul exista deja in Portal!";
+                    $responce->message=$this->t('utilizatorul_exista_deja_in_portal');
                 }
                 else{
                     $newUser= new Users();
@@ -190,18 +191,18 @@ class UserFromSalesToPortalController extends Controller
                     $newUser->navisionid = $postData->navisionid;
                     if($newUser->save()===false) {
                                                 $responce->status="error";
-                                                $responce->message='Error la salvare utilizator in Portal!';
+                                                $responce->message=$this->t('error_la_salvare_utilizator_in_portal');
                                                 $messages = $newUser->getMessages();
                                                 foreach ($messages as $message) {$responce->message.=$message;}
                                         }
                                 else{
                                     $responce->status="success";
-                                    $responce->message="Utilizatorul a fost creat in Portal! Daca doriti sa-i trimiteti link cu parola, folositi butonul 'Resetare parola Portal'";
+                                    $responce->message=$this->t('utilizatorul_a_fost_creat_in_portal_daca_doriti_sa_i');
                                 }
                 }
         }else{
             $responce->status="error";
-            $responce->message="Compania nu are cont in Portal!";
+            $responce->message=$this->t('compania_nu_are_cont_in_portal');
             die(json_encode($responce));
         }
 
@@ -220,13 +221,13 @@ class UserFromSalesToPortalController extends Controller
         $responce->message="";
         if($newStatus!='true' && $newStatus!='false'){
             $responce->status="error";
-            $responce->message="Status invalid!";
+            $responce->message=$this->t('status_invalid');
             die(json_encode($responce));
         }
         //verificam sa corectitudinea hashului
         if(md5($this->passTokenApi.$cif.$slid_user)!=$token){
             $responce->status="error";
-            $responce->message="33Token Invalid";
+            $responce->message=$this->t('33token_invalid');
             die(json_encode($responce));
         }
         //daca ajunge pana aici, inseamna ca a trecut de toate validarile
@@ -256,22 +257,22 @@ class UserFromSalesToPortalController extends Controller
                     }
                     if($user->save()===false) {
                                                 $responce->status="error";
-                                                $responce->message='Error la salvare utilizator in Portal!';
+                                                $responce->message=$this->t('error_la_salvare_utilizator_in_portal');
                                                 $messages = $user->getMessages();
                                                 foreach ($messages as $message) {$responce->message.=$message;}
                                         }
                                 else{
                                     $responce->status="success";
-                                    $responce->message="Statusul utilizatorului a fost schimbat in Portal!";
+                                    $responce->message=$this->t('statusul_utilizatorului_a_fost_schimbat_in_portal');
                                 }
                 }
                 else{
                        $responce->status="error";
-                       $responce->message="Cod fiscal eronat!";
+                       $responce->message=$this->t('cod_fiscal_eronat');
                 }
         }else{
             $responce->status="error";
-            $responce->message="Compania nu are cont in Portal!";
+            $responce->message=$this->t('compania_nu_are_cont_in_portal');
         }
 
         $response
@@ -294,7 +295,7 @@ class UserFromSalesToPortalController extends Controller
         //verificam sa corectitudinea hashului
         if(md5($this->passTokenApi.$cif.$slid_user)!=$token){
             $responce->status="error";
-            $responce->message="33Token Invalid";
+            $responce->message=$this->t('33token_invalid');
             die(json_encode($responce));
         }
         //daca ajunge pana aici, inseamna ca a trecut de toate validarile
@@ -327,20 +328,20 @@ class UserFromSalesToPortalController extends Controller
                     $user->navisionid = $postData->navisionid;
                     if($user->save()===false) {
                         $responce->status="error";
-                        $responce->message='Error la updateUserPortal utilizator in Portal!';
+                        $responce->message=$this->t('error_la_updateuserportal_utilizator_in_portal');
                         $messages = $user->getMessages();
                         foreach ($messages as $message) {$responce->message.=$message;}
                     } else {
                         $responce->status="success";
-                        $responce->message="Update date utilizator cu success";
+                        $responce->message=$this->t('update_date_utilizator_cu_success');
                     }
                 } else {
                     $responce->status="error";
-                    $responce->message="Utilizatorul nu are cont de portal";
+                    $responce->message=$this->t('utilizatorul_nu_are_cont_de_portal');
                 }
         }else{
             $responce->status="error";
-            $responce->message="Compania nu are cont in Portal!";
+            $responce->message=$this->t('compania_nu_are_cont_in_portal');
             die(json_encode($responce));
         }
 
@@ -349,7 +350,7 @@ class UserFromSalesToPortalController extends Controller
             ->send();
     }
 
-    public function setUserToMultipleCompanies($cif,$slid_user,$token){
+    public function setUserToMultipleCompanies($cif,$userid,$slid_user,$token){
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
         header("Cache-Control: post-check=0, pre-check=0", false);
         header("Pragma: no-cache");
@@ -364,20 +365,20 @@ class UserFromSalesToPortalController extends Controller
         //verificam sa corectitudinea hashului
         if(md5($this->passTokenApi.$cif.$slid_user)!=$token){
             $responce->status="error";
-            $responce->message="33Token Invalid";
+            $responce->message=$this->t('33token_invalid');
             die(json_encode($responce));
         }
 
         $user = Users::findFirst(
                             [
-                            'conditions' => 'slid = ?1',
+                            'conditions' => 'userid = ?1',
                             'bind'       => [
-                                            1 =>  $slid_user
+                                            1 =>  $userid
                                             ]
                             ]
         );
         if($user) {
-            $company = UsersCompanies::findFirst([
+            $company = UserCompanies::findFirst([
                     'conditions' => 'userid = ?1 and cif = ?2',
                     'bind'       => [
                                     1 => $userid,
@@ -388,34 +389,33 @@ class UserFromSalesToPortalController extends Controller
             if($company && $type == 'delete') {
                 $company->delete();
                 $responce->status="success";
-                $responce->message="Utilozatorul a fost sters de la companie";
+                $responce->message=$this->t('utilozatorul_a_fost_sters_de_la_companie');
             } else {
                 $company = new UserCompanies();
-                $company->userid = $slid_user;
+                $company->userid = $userid;
                 $company->company_code = $postData->company_code;
                 $company->cif = $cif;
 
                 if($company->save()===false) {
                     $responce->status="error";
-                    $responce->message='Error la adaugare utilizator la o noua companie in Portal!';
+                    $responce->message=$this->t('error_la_adaugare_utilizator_la_o_noua_companie_in_portal');
                     $messages = $company->getMessages();
                     if($messages) {
                         foreach ($messages as $message) {$responce->message.=$message;}
                     }
                 } else {
                     $responce->status="success";
-                    $responce->message="Utilizatorul a fost adaugat cu succes la companie!";
+                    $responce->message=$this->t('utilizatorul_a_fost_adaugat_cu_succes_la_companie');
                 }
             }
 
         } else {
             $responce->status="error";
-            $responce->message="Utilizatorul nu are cont de portal!";
+            $responce->message=$this->t('utilizatorul_nu_are_cont_de_portal');
         }
 
         $response
             ->setJsonContent($responce)
             ->send();
     }
-
 }

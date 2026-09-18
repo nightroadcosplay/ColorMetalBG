@@ -18,6 +18,8 @@ import EditQuantityArticleCerere from '@/components/EditQuantityArticleCerere/Ed
 import BrowseCategories from '@/pages/BrowseCategories/BrowseCategories.vue';
 import BrowseArticles from '@/pages/BrowseArticles/BrowseArticles.vue';
 import NomEditAdresaLivrare from '@/components/NomEditAdresaLivrare/NomEditAdresaLivrare';
+import {hideKgQuantity} from '@/modules/umDisplay';
+import {localizedTypeLabel} from '@/modules/typeLabel';
 
 
 type TProductBasketMarkedFavorites = TProductBasket & {isInFavorite:boolean};
@@ -28,7 +30,6 @@ type TProductBasketMarkedFavorites = TProductBasket & {isInFavorite:boolean};
 })
 export default class Cerere extends Vue {
     @Prop({ default: null }) public readonly propOfferId!: string;
-    @Prop() public closeHandler!: (needRefresh: boolean)=>void;
     public termenCerere='';
     public nrComandaCerere='';
     public nrComandaCerereInitial='';
@@ -110,6 +111,11 @@ export default class Cerere extends Vue {
     public appidToBeTogglesWithFavorites = '';
     public userStore = getModule(user);
     public storeNomenclatoare = getModule(nomenclatoare);
+
+    // Type label in the current language; the RO text stays the stored value.
+    public typeLabel(sizeType: string|null|undefined): string {
+        return localizedTypeLabel(sizeType, this.$i18n.locale);
+    }
     public storeFavorites = getModule(favorites);
     public urlToJPG = CONFIG_ENV.URL_CATEGORY.getJPG;
     public EventBusStore = getModule(eventbus);
@@ -117,6 +123,30 @@ export default class Cerere extends Vue {
 
     private timeUntilFutureDate(pStringDate: string, pformat:string){
         return timeUntilFutureDate(pStringDate,pformat)
+    }
+
+    get pageTitle(): string {
+        const date = this.offerHeader.trackCreationDate || (this.$route.query.d as string) || '';
+        const numeUtilizator = (this.$route.query.u as string) || '';
+        return `${this.$t('message.request')} ${this.propOfferId}${date?' / '+date:''}${numeUtilizator?' '+numeUtilizator:''}`;
+    }
+
+    @Watch('pageTitle')
+    onPageTitleChanged(): void {
+        if(this.$q.platform.is.mobile){
+            this.userStore.set_title_back_bar(this.pageTitle);
+        }
+    }
+
+    public onBack(): void {
+        const vueInst=this;
+        if(vueInst.showBrowseArticles){
+            vueInst.showBrowseArticles=false;
+            vueInst.pidForBrowseCategory='0';
+            vueInst.pidForBrowseCategoryHasArticles=false;
+        }else{
+            vueInst.$router.push({name: 'Offers'});
+        }
     }
 
     public toggleArticleInFavorites(item:TProductBasketMarkedFavorites,indexInProductsList:number): void {
@@ -323,7 +353,6 @@ export default class Cerere extends Vue {
         ServiceOffer.sendCerereForAnOffer(vueInst.products,vueInst.nrComandaCerere,vueInst.termenCerere,vueInst.slidAdresaLivrare,'', vueInst.inputFreeTextComments).then(response=>{
             vueInst.$q.loading.hide();
             if(response.status=='success'){
-                vueInst.EventBusStore.set_event({name:'eventCloseDialogViewOffer',params:{offerId:response.offerId}});
                 vueInst.$router.push({name: 'FirstPageAfterPushOffer',  params: { pidOffer:response.offerId }});
             }
         }).catch((error) => {
@@ -455,13 +484,7 @@ export default class Cerere extends Vue {
         }
 
         if(vueInst.EventBusStore.event.name=='closeCurrentView'){
-                if(vueInst.showBrowseArticles){
-                    vueInst.showBrowseArticles=false;
-                    vueInst.pidForBrowseCategory='0';
-                    vueInst.pidForBrowseCategoryHasArticles=false;
-                }else{
-                    vueInst.EventBusStore.set_event({name:'eventCloseDialogViewOffer',params:null});
-                }
+            vueInst.onBack();
         }
     }
 
@@ -525,14 +548,39 @@ export default class Cerere extends Vue {
             return getFirstCategory(categories);
     }
 
-    public created(): void {
+    public activated(): void {
         const vueInst=this;
+        vueInst.userStore.set_page_transition('fade-in-right');
+        if(vueInst.$q.platform.is.mobile) {
+            vueInst.userStore.set_showbackbar(true);
+            vueInst.userStore.set_title_back_bar(vueInst.pageTitle);
+        }
+        vueInst.showBrowseArticles=false;
+        vueInst.pidForBrowseCategory='0';
+        vueInst.pidForBrowseCategoryHasArticles=false;
+        vueInst.changedItemsInOffer=false;
         vueInst.products=[];
-        if(this.propOfferId){
+        if(vueInst.propOfferId){
             vueInst.$q.loading.show();
-            //extend(true, this.adresa,  this.propAdresa);
-            this.getDetaliiCerere();
+            vueInst.getDetaliiCerere();
             vueInst.getAdreseLivrare();
         }
     }
+
+    //The KG figure is dropped when it would just repeat the um2 figure - see
+    //hideKgQuantity. Only ever hidden while the um2 line is actually rendered,
+    //so a row never ends up with no quantity at all. item.qUm1 is untouched.
+    public showQtyUm1(item:TProductBasket):boolean{
+        const byTipUm = item.tip_um === 'um12' || item.tip_um === 'um1';
+        if(!byTipUm){return false;}
+        const um2Shown = !!(item.um2 && item.um2.length>0 && (item.tip_um === 'um12' || item.tip_um === 'um2'));
+        return !(um2Shown && hideKgQuantity({
+            kgFromUm2: item.kgFromUm2,
+            um1: item.um1,
+            um2: item.um2,
+            um1ToUm2: item.um1_to_um2,
+            cutting: !!item.dorescDebitare
+        }));
+    }
+
 }

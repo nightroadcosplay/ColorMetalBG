@@ -6,6 +6,7 @@ use Phalcon\Image\Factory;
 use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class OfferPDFController extends Controller {
+	use TranslatesMessages;
 	public function offerPDF($slid, $lang, $tokenId, $token){
  		header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
         header("Cache-Control: post-check=0, pre-check=0", false);
@@ -20,21 +21,21 @@ class OfferPDFController extends Controller {
         $logToken = new LogTokenidFromSalesController();
         if(!$logToken->check($tokenId)){
             $responce->status="error";
-            $responce->message="2Token Invalid";
+            $responce->message=$this->t('2token_invalid');
            die(json_encode($responce));
         }
 
         //verificam sa corectitudinea hashului
         if(md5($this->passTokenApi.$tokenId)!=$tokenHash){
             $responce->status="error";
-            $responce->message="3Token Invalid";
+            $responce->message=$this->t('3token_invalid');
             die(json_encode($responce));
         }
 
         $file=$this->pathToApps.'/offers_pdf/offer_'.$slid. '_' . $lang .'.pdf';
         file_get_contents($file, base64_decode($postData->pdfBase64));
         $responce->status="success";
-        $responce->message="File saved successfully";
+        $responce->message=$this->t('file_saved_successfully');
 
         $response
             ->setJsonContent($responce)
@@ -74,7 +75,7 @@ class OfferPDFController extends Controller {
             file_put_contents($file, base64_decode($postData->pdfBase64));
         }
         $responce->status="success";
-        $responce->message="File saved successfully";
+        $responce->message=$this->t('file_saved_successfully');
 
         $response
             ->setJsonContent($responce)
@@ -97,28 +98,28 @@ class OfferPDFController extends Controller {
             if(file.exists($file)) {
                 if(unlink($file)) {
                     $responce->status="success";
-                    $responce->message="File deleted successfully";
+                    $responce->message=$this->t('file_deleted_successfully');
                 } else {
                     $responce->status="error";
-                    $responce->message="Unable to delete file";
+                    $responce->message=$this->t('unable_to_delete_file');
                 }
             } else {
                 $responce->status="error";
-                $responce->message="File not found";
+                $responce->message=$this->t('file_not_found');
             }
         } else if($type == 'confirmare'){
             $file=$this->pathToApps.'/offers_pdf/confirmare_'.$slid. '_' . $lang .'.pdf';
             if(file.exists($file)) {
                 if(unlink($file)) {
                     $responce->status="success";
-                    $responce->message="File deleted successfully";
+                    $responce->message=$this->t('file_deleted_successfully');
                 } else {
                     $responce->status="error";
-                    $responce->message="Unable to delete file";
+                    $responce->message=$this->t('unable_to_delete_file');
                 }
             } else {
                 $responce->status="error";
-                $responce->message="File not found";
+                $responce->message=$this->t('file_not_found');
             }
         }
 

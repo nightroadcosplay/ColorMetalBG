@@ -4,8 +4,9 @@ import router from './router'
 import store from './store'
 import { Quasar, Loading,AppFullscreen, Notify, Dialog } from 'quasar'
 import './styles/quasar.scss'
-import lang from 'quasar/lang/ro.js'
+import { getQuasarLang } from './modules/quasarLang'
 import interceptors from './modules/interceptors';
+import { umLabel } from './modules/umLabel';
 import '@quasar/extras/material-icons/material-icons.css'
 import './assets/site.scss';
 import dotenv from 'dotenv';
@@ -35,8 +36,9 @@ const messages = {
   }
   
   // 2. Create i18n instance with options
+  const savedLocale = localStorage.getItem('lang') || defaultLocale;
   const i18n = createI18n({
-    locale: defaultLocale, // set locale
+    locale: savedLocale, // set locale
     fallbackLocale: 'bg', // set fallback locale
     globalInjection: true,
     messages, // set locale messages
@@ -47,14 +49,17 @@ const messages = {
 
 dotenv.config();
 
-interceptors();
+interceptors((key: string) => i18n.global.t(key) as string);
 const quasarUserOptions={
     config: {},
     plugins: {
         Loading,AppFullscreen, Notify, Dialog
     },
-    lang: lang
+    lang: getQuasarLang(savedLocale)
 
 }
 
-createApp(App).use(Quasar, quasarUserOptions).use(i18n).use(store).use(router).mount('#app')
+const app = createApp(App).use(Quasar, quasarUserOptions).use(i18n).use(store).use(router);
+app.config.globalProperties.$umLabel = (raw: unknown): string =>
+    umLabel(raw, (key: string) => i18n.global.t(key) as string);
+app.mount('#app');

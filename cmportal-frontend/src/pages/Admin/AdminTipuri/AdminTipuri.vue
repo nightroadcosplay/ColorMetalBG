@@ -24,7 +24,7 @@
     >
       <template v-slot:default-header="prop">
         <div style="display: flex;">
-        <span class="app__label--large">{{prop.node.name}}</span>
+        <span class="app__label--large">{{ prop.node.is_tip == 'y' ? ($i18n.locale === 'ro' ? prop.node.name_ro : $i18n.locale === 'en' ? prop.node.name_en : prop.node.name_bg) : prop.node.name }}</span>
         <span v-if="prop.node.is_tip == 'y'" class="material-icons cursor-pointer" style="margin-left: 10px;" @click="openForModifyCategory(prop.node.appid)">create
             <q-tooltip transition-show="scale" transition-hide="scale" anchor="top middle" self="bottom middle" :offset="[10, 10]" >{{ $t('message.edit_image') }}</q-tooltip>
           </span>
@@ -76,7 +76,26 @@
                 :rules="[val => !!val || 'Field is required']"
             /> -->
             <div style="display: flex; flex-direction: column;">
-              <span style="color:black;font-weight: 900;">{{editingCategory.size_type}}</span>
+              <span style="color:black;font-weight: 900;">{{editingCategory.size_type_ro}}</span>
+              <br>
+              <q-input
+                  outlined
+                  v-model="editingCategory.size_type_en"
+                  :label="label_editing_category + ' (EN)'"
+                  input-style="color:black;font-weight: 900;"
+                  counter
+                  style="min-width: 100px;max-width: clamp(100px,90vw, 600px);"
+                  maxlength="300"
+              />
+              <q-input
+                  outlined
+                  v-model="editingCategory.size_type_bg"
+                  :label="label_editing_category + ' (BG)'"
+                  input-style="color:black;font-weight: 900;"
+                  counter
+                  style="min-width: 100px;max-width: clamp(100px,90vw, 600px);"
+                  maxlength="300"
+              />
               <br>
               <div class="flex__column--center">
                 <q-uploader
@@ -96,7 +115,7 @@
                       <q-spinner v-if="scope.isUploading" class="q-uploader__spinner" />
                       <q-btn v-if="scope.canAddFiles" type="a" icon="add_box" round dense flat :label="$t('message.upload_image') + ' 1'">
                         <q-uploader-add-trigger />
-                        <q-tooltip>Pick Files</q-tooltip>
+                        <q-tooltip>{{$t('message.pick_files')}}</q-tooltip>
                       </q-btn>
                     </div>
                   </template>
@@ -135,7 +154,7 @@
                       <q-spinner v-if="scope.isUploading" class="q-uploader__spinner" />
                       <q-btn v-if="scope.canAddFiles" type="a" icon="add_box" round dense flat :label="$t('message.upload_image') + ' 2'">
                         <q-uploader-add-trigger />
-                        <q-tooltip>Pick Files</q-tooltip>
+                        <q-tooltip>{{$t('message.pick_files')}}</q-tooltip>
                       </q-btn>
                     </div>
                   </template>
@@ -174,7 +193,7 @@
                       <q-spinner v-if="scope.isUploading" class="q-uploader__spinner" />
                       <q-btn v-if="scope.canAddFiles" type="a" icon="add_box" round dense flat :label="$t('message.upload_image') + ' 3'">
                         <q-uploader-add-trigger />
-                        <q-tooltip>Pick Files</q-tooltip>
+                        <q-tooltip>{{$t('message.pick_files')}}</q-tooltip>
                       </q-btn>
                     </div>
                   </template>

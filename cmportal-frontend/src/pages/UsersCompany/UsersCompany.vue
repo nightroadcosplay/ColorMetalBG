@@ -15,7 +15,7 @@
           >
             <template v-slot:error>
               <div class="absolute-full flex flex-center bg-negative text-white text-subtitle2">
-                No Image
+                {{$t('message.no_image')}}
               </div>
             </template>
           </q-img>

@@ -53,14 +53,14 @@
             <span v-if="article.sizeDiameter">{{$t('message.diameter')}} {{article.sizeDiameter}} mm </span>
             <span v-if="article.sizeHeight">{{$t('message.height')}} {{article.sizeHeight}} mm </span>
             <span v-if="article.sizeAlloy">{{$t('message.aliaj')}} {{article.sizeAlloy}} </span>
-            <span v-if="article.sizeType"> {{article.sizeType}}  </span>
+            <span v-if="article.sizeType"> {{typeLabel(article.sizeType)}}  </span>
           </span>
 
 
         <span v-if="$q.platform.is.mobile" class="app__label--small" style="font-weight: bold;">{{$t('message.measure_units')}}:</span>
         <div style="display: flex;flex-direction: column;justify-content: flex-start;">
-            <span class="app__property--small">{{article.um1}}</span>
-            <span class="app__property--small">{{article.um2}} <span v-if="article.um2 && article.um2.length>0">({{article.um1ToUm2}})</span></span>
+            <span class="app__property--small">{{$umLabel(article.um1)}}</span>
+            <span class="app__property--small">{{$umLabel(article.um2)}} <span v-if="article.um2 && article.um2.length>0">({{article.um1ToUm2}})</span></span>
         </div>
         <div style="display: flex; align-items: center;">
             <q-checkbox v-model="article.isActive"
@@ -68,7 +68,7 @@
                     @update:model-value="changeStatus(article)"
                     true-value="y"
                     false-value="n"/>
-              <q-btn v-if="$q.platform.is.mobile" color="primary" icon="edit" label="Edit" @click="openProductForEditing(article)" size="xs" style="max-height:1rem;margin-left: 2rem;"/>
+              <q-btn v-if="$q.platform.is.mobile" color="primary" icon="edit" :label="$t('message.edit')" @click="openProductForEditing(article)" size="xs" style="max-height:1rem;margin-left: 2rem;"/>
         </div>
       </div>
 

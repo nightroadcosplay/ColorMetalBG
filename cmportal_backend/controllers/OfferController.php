@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class OfferController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -46,18 +47,18 @@ public function cancelOffer($id_offer){
             if($logEvent->logEvent($id_offer,'cancel','offer_from_user')){
                     $this->db->commit();
                     $responce->status="success";
-                    $responce->message="Oferta a fost trimisa spre anulare catre ColorMetal!";
+                    $responce->message=$this->t('oferta_a_fost_trimisa_spre_anulare_catre_colormetal');
                 }
                 else{
                     $responce->status="error";
-                    $responce->message="Log event could not be created! Reason: ".$logEvent->message;
+                    $responce->message=$this->t('log_event_could_not_be_created_reason_s', $logEvent->message);
                     $this->db->rollback();
                 }
         }
 
     }else{
         $responce->status="error";
-        $responce->message="Oferta nu poate fi identificata pentru anulare!";
+        $responce->message=$this->t('oferta_nu_poate_fi_identificata_pentru_anulare');
     }
 
     $responseHttp
@@ -115,7 +116,7 @@ public function sendBasketForAnOffer(){
                 }
                 else{
                     $responce->status="error";
-                    $responce->message="Log event could not be created! Reason: ".$logEvent->message;
+                    $responce->message=$this->t('log_event_could_not_be_created_reason_s', $logEvent->message);
                 }
 
         }
@@ -191,7 +192,7 @@ public function sendCerereForNewOffer(){
         }
         else{
             $responce->status="error";
-            $responce->message="Log event could not be created! Reason: ".$logEvent->message;
+            $responce->message=$this->t('log_event_could_not_be_created_reason_s', $logEvent->message);
         }
 
     }
@@ -259,7 +260,7 @@ public function insertProductForAnOfferFromUser($idOffer,$productCode,$sizeLengt
 
     if (!$result) {
             $responce->status="error";
-            $responce->message='Error for product code '.$productCode;
+            $responce->message=$this->t('error_for_product_code_s', $productCode);
             $messages = $product->getMessages();
             if($messages) {
                 foreach ($messages as $message) {
@@ -268,7 +269,7 @@ public function insertProductForAnOfferFromUser($idOffer,$productCode,$sizeLengt
             }
     }else{
         $responce->status="success";
-        $responce->message="Produsul a fost adaugat cu succes!";
+        $responce->message=$this->t('produsul_a_fost_adaugat_cu_succes');
     }
 
     //mai departe ajunge numai daca nu sunt erori
@@ -323,7 +324,7 @@ public function sendCerereForNewOffer2(){
         }
         else{
             $responce->status="error";
-            $responce->message="Log event could not be created! Reason: ".$logEvent->message;
+            $responce->message=$this->t('log_event_could_not_be_created_reason_s', $logEvent->message);
         }
 
     }
@@ -439,7 +440,7 @@ public function insertProductForAnOfferFromUser2($idOffer,$productBasket){
     // die(var_dump($result));
     if (!$result) {
             $responce->status="error";
-            $responce->message='Error for product code '.$productCode;
+            $responce->message=$this->t('error_for_product_code_s', $productCode);
             $messages = $product->getMessages();
             // if($messages) {
                 foreach ($messages as $message) {
@@ -448,7 +449,7 @@ public function insertProductForAnOfferFromUser2($idOffer,$productBasket){
             // }
     }else{
         $responce->status="success";
-        $responce->message="Produsul a fost adaugat cu succes!";
+        $responce->message=$this->t('produsul_a_fost_adaugat_cu_succes');
     }
 
     //mai departe ajunge numai daca nu sunt erori
@@ -481,7 +482,7 @@ public function getOffer($id_offer){
     if ($offerHeader && strlen($offerHeader->cif)>0) {
         $responce->status="success";
         $responce->offerHeader=$offerHeader;
-        $responce->productsFromSales= OfferArticlesFromSalesAdaptedColsModel::find(
+        $productsFromSales= OfferArticlesFromSalesAdaptedColsModel::find(
                                             [
                                             'conditions' => 'offerId = ?1',
                                             'bind'       => [
@@ -490,6 +491,14 @@ public function getOffer($id_offer){
                                             'order' => 'nr_ord asc'
                                             ]
                                         );
+        // The lines carry all three names; productName is the one the offer
+        // page shows, so it follows the user's language.
+        $responce->productsFromSales=[];
+        foreach($productsFromSales as $line){
+            $row=$line->toArray();
+            $row['productName']=$this->localizedName($row['productNameRO'] ?? null, $row['productNameEN'] ?? null, $row['productNameBG'] ?? null);
+            $responce->productsFromSales[]=$row;
+        }
         if($offerHeader->viewed == 'n') {
             $count = CountNewDataModel::findFirst([
                 'conditions' => 'cif = ?1 and userid = ?2',
@@ -507,7 +516,7 @@ public function getOffer($id_offer){
 
      }else{
         $responce->status="error";
-        $responce->message="Nu poate fi identificata oferta!";
+        $responce->message=$this->t('nu_poate_fi_identificata_oferta');
      }
 
     $response
@@ -539,7 +548,7 @@ public function sendAcceptOffer($id_offer){
         //die(var_dump($difTime));
         if($difTime > 3600){
           $responce->status="error";
-          $responce->message="Termenul ofertei este expirat!";
+          $responce->message=$this->t('termenul_ofertei_este_expirat');
           $this->db->rollback();
         }
         else{
@@ -557,18 +566,18 @@ public function sendAcceptOffer($id_offer){
                   if($logEvent->logEvent($id_offer,'offer_accept','offer_from_user')){
                           $this->db->commit();
                           $responce->status="success";
-                          $responce->message="Comanda a fost trimisa catre ColorMetal!";
+                          $responce->message=$this->t('comanda_a_fost_trimisa_catre_colormetal');
                       }
                       else{
                           $responce->status="error";
-                          $responce->message="Log event could not be created! Reason: ".$logEvent->message;
+                          $responce->message=$this->t('log_event_could_not_be_created_reason_s', $logEvent->message);
                           $this->db->rollback();
                       }
               }
           }
     }else{
         $responce->status="error";
-        $responce->message="Oferta nu poate fi identificata pentru acceptare!";
+        $responce->message=$this->t('oferta_nu_poate_fi_identificata_pentru_acceptare');
     }
 
     $responseHttp
@@ -658,7 +667,7 @@ public function getMyOffers(){
         } 
     } else {
         $responce->status = 'error';
-        $responce->message = 'Nu poate fi identificat userul in baza de date';
+        $responce->message = $this->t('nu_poate_fi_identificat_userul_in_baza_de_date');
     }
 
     

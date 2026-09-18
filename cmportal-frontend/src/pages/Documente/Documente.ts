@@ -27,7 +27,7 @@ export default class Documente extends Vue {
         this.userStore.set_page_transition('fade-in-right');
         if(this.$q.platform.is.mobile) {
             this.userStore.set_showbackbar(true);
-            this.userStore.set_title_back_bar('DOCUMENTE');
+            this.userStore.set_title_back_bar((this.$t('message.documents') as string));
         }
     }
 }

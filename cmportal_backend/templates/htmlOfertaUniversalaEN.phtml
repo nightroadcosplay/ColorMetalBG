@@ -277,12 +277,12 @@ foreach ($articole_oferta as $articol){
             </td>
             <?php if($exista_um1||$exista_um12) { ?>
                 <td style="padding: 3px;border: solid 1px #6f7180;"><?php if(($articol->tip_um=='um1'||$articol->tip_um=='um12')&&$articol->um1&&$articol->q1){ echo number_format($articol->q1,2);}?></td>
-                <td style="padding: 3px;border: solid 1px #6f7180;"><?php if(($articol->tip_um=='um1'||$articol->tip_um=='um12')&&$articol->um1&&$articol->q1){ echo str_ireplace('BUC','PCS',$articol->um1);}?></td>
+                <td style="padding: 3px;border: solid 1px #6f7180;"><?php if(($articol->tip_um=='um1'||$articol->tip_um=='um12')&&$articol->um1&&$articol->q1){ echo str_ireplace(['BUC','БРОЙ'],'PCS',$articol->um1);}?></td>
                 <td style="padding: 3px;border: solid 1px #6f7180;text-align: right;"><?php if(($articol->tip_um=='um1'||$articol->tip_um=='um12')&&$articol->um1&&$articol->pret_um1){ echo number_format($articol->pret_um1,2);}?></td>
             <?php } ?>
             <?php if($exista_um2||$exista_um12) { ?>
                 <td style="padding: 3px;border: solid 1px #6f7180;"><?php if(($articol->tip_um=='um2'||$articol->tip_um=='um12')&&$articol->um2&&$articol->q2){echo number_format($articol->q2,2);};?></td>
-                <td style="padding: 3px;border: solid 1px #6f7180;"><?php if(($articol->tip_um=='um2'||$articol->tip_um=='um12')&&$articol->um2&&$articol->um2){echo str_ireplace('BUC','PCS',$articol->um2);}?></td>
+                <td style="padding: 3px;border: solid 1px #6f7180;"><?php if(($articol->tip_um=='um2'||$articol->tip_um=='um12')&&$articol->um2&&$articol->um2){echo str_ireplace(['BUC','БРОЙ'],'PCS',$articol->um2);}?></td>
                 <td style="padding: 3px;border: solid 1px #6f7180;text-align: right;"><?php if(($articol->tip_um=='um2'||$articol->tip_um=='um12')&&$articol->um2&&$articol->pret_um2){ echo number_format($articol->pret_um2,2);}?></td>
             <?php } ?>
             <?php if($exista_um12) { ?>

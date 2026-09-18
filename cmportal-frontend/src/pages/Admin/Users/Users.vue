@@ -3,7 +3,7 @@
   <div class="q-pa-sm ecran-container ">
     <div style="display: flex;align-items: center;">
         <div v-if="$q.platform.is.desktop" class="app__page__title__container">
-          <span class="app__company__title">Dashboard ADMIN</span>
+          <span class="app__company__title">{{$t('message.dashboard_admin')}}</span>
           <span class=" app__page__title" style="white-space:nowrap"><q-icon name="group_add" style="font-size:2rem;top: -3px;" color="primary" /> {{ $t('message.users') }} {{company.name}}</span>
         </div>
 

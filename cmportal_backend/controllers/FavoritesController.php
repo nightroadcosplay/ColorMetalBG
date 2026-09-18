@@ -5,6 +5,7 @@ use Phalcon\Filter\FilterFactory;
 
 class FavoritesController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -36,18 +37,26 @@ public function getArticleByCodeAndPutIntoFavorites(){
             );
         if($favorite !== false){
                         $responce->status="error";
-                        $responce->message="Acest articol este deja in lista dvs. de favorite";
+                        $responce->message=$this->t('acest_articol_este_deja_in_lista_dvs_de_favorite');
                     }
             else{
                 $responce=$this->insert($identifiedArticol->categoryPid,$identifiedArticol->pid,$identifiedArticol->code,$identifiedArticol->sizeLength,$identifiedArticol->sizeWidth,$identifiedArticol->sizeThickness,$identifiedArticol->sizeDiameter,$identifiedArticol->sizeHeight,$identifiedArticol->sizeAlloy,$identifiedArticol->sizeType,$identifiedArticol->um1,$identifiedArticol->um2,$qUm1, $qUm2);
                 if($responce->status=="success"){
+                                                    // Needs 'conditions': findFirst(['appid'=>...]) ignores
+                                                    // the key and returns the view's first row.
                                                     $favorite= VFavoritesModel::findFirst(
                                                         [
-                                                            'appid'=>$responce->appid
+                                                            'conditions' => 'appid = ?1',
+                                                            'bind'       => [1 => $responce->appid]
                                                         ]
                                                     );
-                                                    $responce->productName=$favorite->product_name_ro;
-                                                    $responce->categoryName=$favorite->category_name_ro;
+                                                    if($favorite){
+                                                        $responce->productName=$this->localizedName($favorite->product_name_ro, $favorite->product_name_en, $favorite->product_name_bg);
+                                                        $responce->productNameRO=$favorite->product_name_ro;
+                                                        $responce->productNameEN=$favorite->product_name_en;
+                                                        $responce->productNameBG=$favorite->product_name_bg;
+                                                        $responce->categoryName=$favorite->category_name_ro;
+                                                    }
                                                     }
                 }
         }
@@ -107,16 +116,24 @@ public function identifyArticleAndPutIntoFavorites(){
         // die(var_dump($favorite));
         if($favorite){
                 $responce->status="error";
-                $responce->message="Acest articol este deja in lista dvs. de favorite";
+                $responce->message=$this->t('acest_articol_este_deja_in_lista_dvs_de_favorite');
         }else{
             $responce=$this->insert($identifiedArticol->categoryPid,$identifiedArticol->productPid,$identifiedArticol->productCode,$selectedLength,$selectedWidth,$selectedThickness,$selectedDiameter,$selectedHeight,$selectedAlloy,$selectedType,$um1,$um2,$qUm1, $qUm2);
             if($responce->status=="success"){
+                                            // Needs 'conditions': findFirst(['appid'=>...]) ignores
+                                            // the key and returns the view's first row.
                                             $favorite= VFavoritesModel::findFirst(
                                                 [
-                                                    'appid'=>$responce->appid
+                                                    'conditions' => 'appid = ?1',
+                                                    'bind'       => [1 => $responce->appid]
                                                 ]
                                             );
-                                            // $responce->productName=$favorite->product_name_ro;
+                                            if($favorite){
+                                                $responce->productName=$this->localizedName($favorite->product_name_ro, $favorite->product_name_en, $favorite->product_name_bg);
+                                                $responce->productNameRO=$favorite->product_name_ro;
+                                                $responce->productNameEN=$favorite->product_name_en;
+                                                $responce->productNameBG=$favorite->product_name_bg;
+                                            }
                                             // $responce->categoryName=$favorite->category_name_ro;
                                             }
         }
@@ -158,7 +175,8 @@ public function insert($categoryPid,$productPid,$productCode,$selectedLength,$se
     if(!empty($qUm2)){$favorite->qum2=$qUm2;}
     if(!empty($selectedLength)){$favorite->size_length= $filter->sanitize($selectedLength,  'int');}
     if(!empty($selectedWidth)){$favorite->size_width= $filter->sanitize($selectedWidth,  'int');}
-    if(!empty($selectedThickness)){$favorite->size_thickness= $filter->sanitize($selectedThickness,  'int');}
+    //thickness is fractional (1.00, 50.80): the 'int' filter strips the decimal point and turns 1.00 into 100
+    if(!empty($selectedThickness)){$favorite->size_thickness= $filter->sanitize($selectedThickness,  'float');}
     if(!empty($selectedDiameter)){$favorite->size_diameter= $filter->sanitize($selectedDiameter,  'int');}
     if(!empty($selectedHeight)){$favorite->size_height= $filter->sanitize($selectedHeight,  'int');}
     if(!empty($selectedAlloy)){$favorite->size_alloy= $filter->sanitize($selectedAlloy,  'string');}
@@ -174,14 +192,14 @@ public function insert($categoryPid,$productPid,$productCode,$selectedLength,$se
 
     if (!$result) {
             $responce->status="error";
-            $responce->message='Error for product code '.$productCode;
+            $responce->message=$this->t('error_for_product_code_s', $productCode);
             $messages = $favorite->getMessages();
             foreach ($messages as $message) {
                 $responce->message.=$message;
             }
     }else{
         $responce->status="success";
-        $responce->message="Produsul a fost adaugat cu succes!";
+        $responce->message=$this->t('produsul_a_fost_adaugat_cu_succes');
     }
 
     //mai departe ajunge numai daca nu sunt erori
@@ -280,7 +298,7 @@ public function delete($productCode){
     }
     else{
         $responce->status="error";
-        $responce->message="Nu poate fi identificat articolul";
+        $responce->message=$this->t('nu_poate_fi_identificat_articolul');
     }
 
 

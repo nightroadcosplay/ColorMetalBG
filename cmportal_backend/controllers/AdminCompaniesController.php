@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class AdminCompaniesController extends Controller
 {
+use TranslatesMessages;
 
 private $companyCode;
 private $cif;
@@ -23,7 +24,7 @@ public function onConstruct()
         }
     else{
         $responceContent->status="error";
-        $responceContent->message="Invalid session! Please reconnect!";    
+        $responceContent->message=$this->t('invalid_session_please_reconnect');
     die(json_encode($responceContent));
     }
 }
@@ -95,7 +96,7 @@ public function getCompanyAddress($cif) {
     }
     else{
         $responceContent->status="error";
-        $responceContent->message="Adresa nu este in baza de date!";//appid gresita            
+        $responceContent->message=$this->t('adresa_nu_este_in_baza_de_date');//appid gresita
     }
 
     $response

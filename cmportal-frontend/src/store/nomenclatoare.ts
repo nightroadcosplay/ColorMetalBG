@@ -7,6 +7,7 @@ import {TOptionCategory} from "@/types/TOptionCategory";
 import {ServiceAdminNomCategory} from "@/services/ServiceAdminNomCategory";
 import {ServiceAdminNomProducts} from "@/services/ServiceAdminNomProducts";
 import {EnumUM} from "@/types/EnumUM";
+import {TNomTip} from "@/types/TTip";
 
 @Module({ namespaced: true, dynamic: true, store, name: 'storeNomenclatoare'})
 export default class Nomenclatoare extends VuexModule {
@@ -22,6 +23,12 @@ export default class Nomenclatoare extends VuexModule {
     public minLengthBare = 50;
     public maxLengthPlaci = 3020;
     public maxLengthBare = 3000;
+    public nomTipuri: TNomTip[] = [];
+
+    @Mutation
+    public SET_NOM_TIPURI(ptipuri: TNomTip[]) {
+        this.nomTipuri = JSON.parse(JSON.stringify(ptipuri));
+    }
 
     @Mutation
     public SET_CURRENTPAGETITLE(ptitle: string) {
@@ -103,7 +110,18 @@ export default class Nomenclatoare extends VuexModule {
             (resolve, reject) => {
                 resolve('success');
             });
-        const result = await Promise.all([willUpdateStoreNomCategFromDB, willUpdateStoreNomTipDocsFromDB])
+        // Type labels only: if they fail to load, types show their RO text, so
+        // this never holds up the app.
+        const willUpdateStoreNomTipuriFromDB = new Promise(
+            (resolve) => {
+                ServiceAdminNomCategory.getNomTipuri().then((presponse) => {
+                    if (presponse.status === 'success') {
+                        vueInst.context.commit('SET_NOM_TIPURI', presponse.tipuri);
+                    }
+                    resolve('success');
+                }).catch(() => resolve('success'));
+            });
+        const result = await Promise.all([willUpdateStoreNomCategFromDB, willUpdateStoreNomTipDocsFromDB, willUpdateStoreNomTipuriFromDB])
             .then(result => {
                 console.log('Promise.all cu succes!');
                 return 'success';

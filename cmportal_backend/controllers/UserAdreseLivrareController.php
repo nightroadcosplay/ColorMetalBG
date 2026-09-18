@@ -7,6 +7,7 @@ use Phalcon\Image\Factory;
 
 class UserAdreseLivrareController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -106,14 +107,14 @@ public function saveAdresa(){
                     ':adresa_cod_judet' => $adresaCodJudet 
                 ));
             $responce->status="success";
-            $responce->message="Datele au fost salvate cu succes!"; 
+            $responce->message=$this->t('datele_au_fost_salvate_cu_succes');
             $logEvent=new LogEventsController();
             $logEvent->logEvent($newSlid,'new','clients_address');
         } else {
             $adresa = AdresaLivrare::findFirstBySlid($slid);
             if(!$adresa){
                 $responce->status="error";
-                $responce->message="Adresa nu poate fi identificata!";
+                $responce->message=$this->t('adresa_nu_poate_fi_identificata');
             } else {
                 $adresa->adresa_cod_judet = $adresaCodJudet;
                 $adresa->adresa_localitate = $adresaLocalitate;
@@ -137,14 +138,14 @@ public function saveAdresa(){
                     $logEvent=new LogEventsController();
                     $logEvent->logEvent($slid,'modify','clients_address');
                     $responce->status="success";
-                    $responce->message="Datele au fost salvate cu succes!"; 
+                    $responce->message=$this->t('datele_au_fost_salvate_cu_succes');
                 }
             }
             }
     }
     else{
         $responce->status="error";
-        $responce->message="Userul nu poate fi identificat!";//appid gresita            
+        $responce->message=$this->t('userul_nu_poate_fi_identificat');//appid gresita
     }
     die(json_encode($responce));
 }
@@ -170,12 +171,12 @@ public function saveAdresa(){
                 } 
                 else {
                     $responce->status="success";
-                    $responce->message="Adresa a fost stearsa!"; 
+                    $responce->message=$this->t('adresa_a_fost_stearsa');
                 }
         }
         else{
             $responce->status="error";
-            $responce->message="Date incorecte!";//appid gresita            
+            $responce->message=$this->t('date_incorecte');//appid gresita
         }
         die(json_encode($responce));
     }    
@@ -204,7 +205,7 @@ public function saveAdresa(){
         }
         else{
             $responce->status="error";
-            $responce->message="Adresa nu este in baza de date!";//appid gresita            
+            $responce->message=$this->t('adresa_nu_este_in_baza_de_date');//appid gresita
         }
         die(json_encode($responce));
     }    

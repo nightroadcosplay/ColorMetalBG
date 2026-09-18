@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class CerereController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -54,11 +55,16 @@ public function getCerere($id_offer){
                     "categoryPid"=>$product->pid_category,
                     "productPid"=>$product->pid_product ,
                     "productCode"=>$product->product_code ,
-                    "productName"=>$product->product_name_ro ,
+                    "productName"=>$this->localizedName($product->product_name_ro, $product->product_name_en, $product->product_name_bg),
+                    "productNameRO"=>$product->product_name_ro,
+                    "productNameEN"=>$product->product_name_en,
+                    "productNameBG"=>$product->product_name_bg,
                     "qBuc"=>$product->q_nr_buc,
                     "q_um_base"=>'',
                     "qUm1"=>1*$product->qum1,
                     "um1"=>$product->um1,
+                    "um1_to_um2"=>$product->um1_to_um2,
+                    "kgFromUm2"=>$product->kg_from_um2,
                     "qUm2"=>1*$product->qum2,
                     "um2"=>$product->um2,
                     "l"=>$product->size_length,
@@ -80,7 +86,7 @@ public function getCerere($id_offer){
 
      }else{
         $responce->status="error";
-        $responce->message="Nu poate fi identificata oferta!";
+        $responce->message=$this->t('nu_poate_fi_identificata_oferta');
      }
 
     $response

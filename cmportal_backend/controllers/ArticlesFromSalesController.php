@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class ArticlesFromSalesController extends Controller
 {
+    use TranslatesMessages;
     public function indexAction(){}
 
     public function getArticlesFromSales($token) {
@@ -24,93 +25,95 @@ class ArticlesFromSalesController extends Controller
 
         foreach($postData as $postProduct){
             // die(var_dump($postProduct));
-            $product = VNomProduct::findFirst([
-                'conditions' => 'product_code = ?1',
-                'bind'       => [
-                    1 => $postProduct->product_code
-                ]
-            ]);
-            if(!$product) {
-                $product = new NomProduct();
-                // $product->reset();
-                $product->appid = 0;
-                $product->product_code = $postProduct->product_code;
-                $product->product_name_ro = $postProduct->product_name_ro;
-                $product->cu_debitare = $postProduct->cu_debitare;
-                $product->um1 = $postProduct->um1;
-                $product->um_base = $postProduct->um1;
-                $product->um2 = $postProduct->um2;
-                $product->um1_to_um2 = $postProduct->um1_to_um2;
-                $product->aliaj = $postProduct->aliaj;
-                $product->additional_info = $postProduct->description;
-                $product->product_name_en = $postProduct->product_name_en;
-                $product->product_name_bg = $postProduct->product_name_bg;
-                $product->pid_category='{0}';
-                if($product->save()===false) {
-                    $responce->message='Error on save product ='.$postProduct->product_name_ro;
-                    $messages = $product->getMessages();
-                    if($messages) {
-                        foreach ($messages as $message) {$responce->message.=$message;}
+            if(isset($postProduct->um1) && $postProduct->um1 !== null) {
+                $product = NomProduct::findFirst([
+                    'conditions' => 'product_code = ?1',
+                    'bind'       => [
+                        1 => $postProduct->product_code
+                    ]
+                ]);
+                if(!$product) {
+                    $product = new NomProduct();
+                    // $product->reset();
+                    $product->appid = 0;
+                    $product->product_code = $postProduct->product_code;
+                    $product->product_name_ro = $postProduct->product_name_ro;
+                    $product->cu_debitare = $postProduct->cu_debitare;
+                    $product->um1 = $postProduct->um1 ?? '';
+                    $product->um_base = $postProduct->um1 ?? '';
+                    $product->um2 = $postProduct->um2;
+                    $product->um1_to_um2 = $postProduct->um1_to_um2;
+                    $product->aliaj = $postProduct->aliaj;
+                    $product->additional_info = $postProduct->description;
+                    $product->product_name_en = $postProduct->product_name_en;
+                    $product->product_name_bg = $postProduct->product_name_bg;
+                    $product->pid_category='{0}';
+                    if($product->save()===false) {
+                        $responce->message=$this->t('error_on_save_product_s', $postProduct->product_name_ro);
+                        $messages = $product->getMessages();
+                        if($messages) {
+                            foreach ($messages as $message) {$responce->message.=$message;}
+                        }
+                    } else {
+                        $responce->message .= $this->t('s_a_fost_salvat_in_portal', $postProduct->product_code);
                     }
                 } else {
-                    $responce->message .= $postProduct->product_code . ' a fost salvat in Portal'; 
+                    // $changed = false;
+                    
+                    // if($product->product_name_ro !== $postProduct->product_name_ro) {
+                        $product->product_name_ro = $postProduct->product_name_ro;
+                    //     $changed = true;
+                    // }
+                    // if($product->product_name_en !== $postProduct->product_name_en) {
+                        $product->product_name_en = $postProduct->product_name_en;
+                    //     $changed = true;
+                    // }
+                    // if($product->product_name_bg !== $postProduct->product_name_bg) {
+                        $product->product_name_bg = $postProduct->product_name_bg;
+                    //     $changed = true;
+                    // }
+                    // if($product->cu_debitare !== $postProduct->cu_debitare) {
+                        $product->cu_debitare = $postProduct->cu_debitare;
+                    //     $changed = true;
+                    // }
+                    // if($postProduct->um1 !== null && $product->um1 !== $postProduct->um1) {
+                        $product->um1 = $postProduct->um1;
+                    //     $changed = true;
+                    // }
+                    // if($product->um2 !== $postProduct->um2) {
+                        $product->um2 = $postProduct->um2;
+                    //     $changed = true;
+                    // }
+                    // if($product->um1_to_um2 !== $postProduct->um1_to_um2) {
+                        $product->um1_to_um2 = $postProduct->um1_to_um2;
+                    //     $changed = true;
+                    // }
+                    // if($postProduct->um1 !== null && $product->um_base !== $postProduct->um1) {
+                        $product->um_base = $postProduct->um1;
+                        // $changed = true;
+                    // }
+                    // if($product->aliaj !== $postProduct->aliaj) {
+                        $product->aliaj = $postProduct->aliaj;
+                        // $changed = true;
+                    // }
+                    // if($product->additional_info !== $postProduct->description) {
+                        $product->additional_info = $postProduct->description;
+                    //     $changed = true;
+                    // }
+                    // $product->size_diameter = $postProduct->diametru;
+                    // $product->size_thickness = $postProduct->grosime;
+                    // if($changed) {
+                        if($product->save()===false) {
+                            $responce->message=$this->t('error_on_save_product_s_s', $postProduct->product_name_ro, $postProduct->product_code);
+                            $messages = $product->getMessages();
+                            if($messages) {
+                                foreach ($messages as $message) {$responce->message.=$message;}
+                            }
+                        } else {
+                            $responce->message .= $this->t('s_s_a_fost_salvat_in_portal', $postProduct->product_code, $postProduct->product_name_ro);
+                        }
+                    // }
                 }
-            } else {
-                    $changed = false;
-                	
-                	if($product->product_name_ro !== $postProduct->product_name_ro) {
-                		$product->product_name_ro = $postProduct->product_name_ro;
-                    	$changed = true;
-                    }
-                    if($product->product_name_en !== $postProduct->product_name_en) {
-                		$product->product_name_en = $postProduct->product_name_en;
-                    	$changed = true;
-                    }
-                    if($product->product_name_bg !== $postProduct->product_name_bg) {
-                		$product->product_name_bg = $postProduct->product_name_bg;
-                    	$changed = true;
-                    }
-                	if($product->cu_debitare !== $postProduct->cu_debitare) {
-                		$product->cu_debitare = $postProduct->cu_debitare;
-                    	$changed = true;
-                    }
-                	if($product->um1 !== $postProduct->um1) {
-                		$product->um1 = $postProduct->um1;
-                    	$changed = true;
-                    }
-                	if($product->um2 !== $postProduct->um2) {
-                		$product->um2 = $postProduct->um2;
-                    	$changed = true;
-                    }
-                	if($product->um1_to_um2 !== $postProduct->um1_to_um2) {
-                		$product->um1_to_um2 = $postProduct->um1_to_um2;
-                    	$changed = true;
-                    }
-                	if($product->um_base !== $postProduct->um1) {
-                		$product->um_base = $postProduct->um1;
-                    	$changed = true;
-                    }
-                	if($product->aliaj !== $postProduct->aliaj) {
-                		$product->aliaj = $postProduct->aliaj;
-                    	$changed = true;
-                    }
-                	if($product->additional_info !== $postProduct->description) {
-               	 		$product->additional_info = $postProduct->description;
-                    	$changed = true;
-                    }
-                	// $product->size_diameter = $postProduct->diametru;
-                	// $product->size_thickness = $postProduct->grosime;
-                	if($changed) {
-                   		if($product->save()===false) {
-                        	$responce->message=' Error on save product ='.$postProduct->product_name_ro. ', '.$postProduct->product_code;
-                        	$messages = $product->getMessages();
-                        	if($messages) {
-                            	foreach ($messages as $message) {$responce->message.=$message;}
-                        	}
-                    	} else {
-                        	$responce->message .= $postProduct->product_code.', '.$postProduct->product_name_ro . ' a fost salvat in Portal'; 
-                    	}
-                    }
             }
         }
 

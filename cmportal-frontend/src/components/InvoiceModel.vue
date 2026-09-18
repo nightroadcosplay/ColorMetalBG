@@ -110,14 +110,14 @@
                 <q-item v-for="(certificat, index) in certificates" :key="certificat.ItemNo">
                   <q-card v-if="$q.platform.is.mobile" class="my_card_4" >
                     <q-item-section>
-                        <q-item-label><b>ItemNo:</b></q-item-label>
+                        <q-item-label><b>{{$t('message.item_no')}}:</b></q-item-label>
                     </q-item-section>
                     <q-item-section >
                         <q-item-label caption>{{ certificat.ItemNo }}</q-item-label>
                     </q-item-section>
                     <br>
                     <q-item-section>
-                        <q-item-label><b>Description:</b></q-item-label>
+                        <q-item-label><b>{{$t('message.description')}}:</b></q-item-label>
                     </q-item-section>
                     <q-item-section>
                         <q-item-label caption>{{ certificat.Description }}</q-item-label>
@@ -127,11 +127,11 @@
                     </q-card-actions>
                   </q-card>
                   <q-item-section v-if="$q.platform.is.desktop" no-wrap>
-                        <q-item-label><b>ItemNo:</b> {{ certificat.ItemNo }}</q-item-label>
+                        <q-item-label><b>{{$t('message.item_no')}}:</b> {{ certificat.ItemNo }}</q-item-label>
                     </q-item-section>
                     
                     <q-item-section v-if="$q.platform.is.desktop" no-wrap>
-                        <q-item-label><b>Description:</b> {{ certificat.Description }}</q-item-label>
+                        <q-item-label><b>{{$t('message.description')}}:</b> {{ certificat.Description }}</q-item-label>
                     </q-item-section>
                     
                     <q-item-section v-if="$q.platform.is.desktop" class="pdf_icon">
@@ -207,7 +207,7 @@
                 vueInst.selectedBillNr = bill_nr;
                 vueInst.pdfBase64 = '';
                 vueInst.pdfTitle = '';
-                vueInst.popupTitle = 'Factura '+ bill_nr;
+                vueInst.popupTitle = (vueInst.$t('message.invoice') as string)+' '+ bill_nr;
                 vueInst.isLoadingInvoice = true;      
                 ServiceInvoice.downloadInvoice(bill_nr).then(response=>{
                     // vueInst.$q.loading.hide();
@@ -246,7 +246,7 @@
                                 vueInst.fixed = true;  
                                 vueInst.pdfTitle = 'Certificate_'+bill_nr+'.pdf';
                                 vueInst.pdfBase64 = 'data:application/pdf;base64,'+ response.message +'#title='+vueInst.pdfTitle;
-                                vueInst.popupTitle = 'Certificat '+bill_nr;
+                                vueInst.popupTitle = (vueInst.$t('message.certificate') as string)+' '+bill_nr;
                             } else {
                                 vueInst.$q.notify({
                                     color: 'red',
@@ -274,7 +274,7 @@
                 vueInst.fixed = true;  
                 vueInst.pdfTitle = 'Certificate_'+certificat.ItemNo+'.pdf';
                 vueInst.pdfBase64 = 'data:application/pdf;base64,'+ certificat.Certificate+'#title='+vueInst.pdfTitle;
-                vueInst.popupTitle = 'Certificat '+certificat.ItemNo;
+                vueInst.popupTitle = (vueInst.$t('message.certificate') as string)+' '+certificat.ItemNo;
                 vueInst.isLoadingInvoice = false;   
             },
 
@@ -312,6 +312,14 @@
     .my_card{
     width: 90%;
     height: 90%;
+    overflow-y: auto;
+    }
+    /* keep the title / download / close row in view while the PDF scrolls */
+    .my_card > :first-child{
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: white;
     }
     .my_card_2{
     width: 100%;

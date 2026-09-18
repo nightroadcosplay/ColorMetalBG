@@ -29,7 +29,7 @@ export default class DateCompanie extends Vue {
         this.userStore.set_page_transition('fade-in-right');
         if(this.$q.platform.is.mobile) {
             this.userStore.set_showbackbar(true);
-            this.userStore.set_title_back_bar(this.$t('company_data'));
+            this.userStore.set_title_back_bar(this.$t('message.company_data'));
         }
         
         const vueInst=this;

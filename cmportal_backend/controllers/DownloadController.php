@@ -9,6 +9,7 @@ use Dompdf\Dompdf;
 
 class DownloadController extends Controller
 {
+	use TranslatesMessages;
 
 	public function generareOfertaPdfLink($type,$id_offer, $lang) {
 
@@ -28,11 +29,11 @@ class DownloadController extends Controller
 	        	$responce->status = "success";
 	        } else {
 	    		$responce->status = "error";
-	        	$responce->message="Fisierul este gol!";
+	        	$responce->message=$this->t('fisierul_este_gol');
 	        }
     	} else {
     		$responce->status = "error";
-        	$responce->message="Fisierul nu a fost gasit!";
+        	$responce->message=$this->t('fisierul_nu_a_fost_gasit');
     	}
 
         $response
@@ -49,7 +50,7 @@ class DownloadController extends Controller
         $responce = new stdClass();
         $responce->status="init";
 
-        $pdf_path = $this->pathToApps.'offers_pdf/'.$type.'.pdf';
+        $pdf_path = $this->pathToApps.'/offers_pdf/'.$type.'.pdf';
 
         if(file_exists($pdf_path)) {
         	if(filesize($pdf_path) > 0) { 
@@ -58,11 +59,11 @@ class DownloadController extends Controller
 	        	$responce->status = "success";
 	        } else {
 	    		$responce->status = "error";
-	        	$responce->message="Fisierul este gol!";
+	        	$responce->message=$this->t('fisierul_este_gol');
 	        }
     	} else {
     		$responce->status = "error";
-        	$responce->message="Fisierul nu a fost gasit!";
+        	$responce->message=$this->t('fisierul_nu_a_fost_gasit');
     	}
 
         $response

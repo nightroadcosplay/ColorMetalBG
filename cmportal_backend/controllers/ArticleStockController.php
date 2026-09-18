@@ -25,7 +25,8 @@ public function indexAction()
         $apiNav = new ApiNavGetArticleStock();
         $raspunsDinNav = $apiNav->getArticleStock($productCode);
         // $responce->message = $raspunsDinNav->message;
-        $responce->itemStock = $raspunsDinNav->itemStock;
+        $responce->itemStockBG = $raspunsDinNav->itemStockBG;
+        $responce->itemStockRO = $raspunsDinNav->itemStockRO;
         $responce->status="success";
         $response
             ->setJsonContent($responce)

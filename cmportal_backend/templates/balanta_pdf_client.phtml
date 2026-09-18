@@ -78,15 +78,15 @@
                 <tr>
                     <td>
                        <div style="min-width:10cm;font-family: Helvetica;font-size:14px;font-weight:bold;">
-                            Societate: <span style="font-size:14px;"><?=$balantaInNav->Name;?></span>
+                            <?=$t('balanta_pdf_societate');?>: <span style="font-size:14px;"><?=$balantaInNav->Name;?></span>
                             <br/>
-                            Cod unic de identificare: <?=$cif;?>
+                            <?=$t('balanta_pdf_cod_unic');?>: <?=$cif;?>
                             </div>
                     </td>
                     <td style="text-align:center;font-family: Helvetica;font-size:14px;font-weight:bold;">
                         <div style="min-width:11cm;">
-                            Client - Fisa partener<br>
-                            Perioada: 01.01.<?=(1*date("Y")-1);?> - <?=date('d.m.Y');?> 
+                            <?=$t('balanta_pdf_titlu');?><br>
+                            <?=$t('balanta_pdf_perioada');?>: 01.01.<?=(1*date("Y")-1);?> - <?=date('d.m.Y');?> 
                         </div>
                     </td>
                     <td>
@@ -108,15 +108,15 @@
     <p style="page-break-after: never;">
     <table id="balanta">
       <tr>
-        <th>Data<br />documentului</th>
-        <th>Data<br >scadenta</th>
-        <th>Tip document</th>
-        <th>Numar</th>
-        <th>Grupa<br />inregistrare</th>
-        <th>Suma debit</th>
-        <th>Suma credit</th>
-        <th>Sold debit</th>
-        <th>Sold credit</th>
+        <th><?=$t('balanta_pdf_data_document');?></th>
+        <th><?=$t('balanta_pdf_data_scadenta');?></th>
+        <th><?=$t('balanta_pdf_tip_document');?></th>
+        <th><?=$t('balanta_pdf_numar');?></th>
+        <th><?=$t('balanta_pdf_grupa_inregistrare');?></th>
+        <th><?=$t('balanta_pdf_suma_debit');?></th>
+        <th><?=$t('balanta_pdf_suma_credit');?></th>
+        <th><?=$t('balanta_pdf_sold_debit');?></th>
+        <th><?=$t('balanta_pdf_sold_credit');?></th>
      </tr>
        <?php
        $rowCount=0;

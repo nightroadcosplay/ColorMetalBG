@@ -1,6 +1,6 @@
 <template>
   <div style="text-align: center;">
-    <span class="text-h5">Profilul meu</span>
+    <span class="text-h5">{{$t('message.my_profile')}}</span>
     <div class="q-pa-md" style="max-width: 400px;margin: auto;">
       <q-form
           @submit="onSubmit"
@@ -45,7 +45,7 @@
             <q-input
                 outlined
                 v-model="myProfile.firstName"
-                label="Prenume"
+                :label="$t('message.first_name')"
                 lazy-rules
                 :rules="[ val => val && val.length > 0 || $t('message.te_rugam_sa_completezi_prenumele_tau')]"
             />
@@ -57,7 +57,7 @@
             <q-input
                 outlined
                 v-model="myProfile.lastName"
-                label="Nume"
+                :label="$t('message.last_name')"
                 lazy-rules
                 :rules="[ val => val && val.length > 0 || $t('message.te_rugam_sa_completezi_numele_tau')]"
             />
@@ -71,7 +71,7 @@
                 readonly
                 type="email"
                 v-model="myProfile.email"
-                label="Emailul meu"
+                :label="$t('message.my_email')"
                 lazy-rules
                 :rules="[ val => val && val.length > 0 || $t('message.te_rugam_sa_completezi_un_email_valid')]"
             />
@@ -85,7 +85,7 @@
                 readonly
                 type="tel"
                 v-model="myProfile.phoneNr"
-                label="Telefon contact"
+                :label="$t('message.contact_phone')"
                 lazy-rules
                 :rules="[ val => val && val.length > 0 || $t('message.te_rugam_sa_completezi_numarul_de_telefon_de_contact')]"
             />

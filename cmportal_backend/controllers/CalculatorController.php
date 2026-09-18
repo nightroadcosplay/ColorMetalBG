@@ -7,7 +7,8 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class CalculatorController extends Controller
 {
-	
+	use TranslatesMessages;
+
 	private $pi=3.14141;
     private $densitate_g_per_cm3=0;
 	private $diametru=0;
@@ -85,15 +86,15 @@ public function getCalcule(){
     if($this->NrBuc>0){
         if(!$this->getParametersFromDB()){
             $responce->status="error";
-            $responce->message="Eroare la identificarea paramterilor articolului in baza de date!";
+            $responce->message=$this->t('eroare_la_identificarea_paramterilor_articolului_in_baza_de');
         }
         if(!$this->calculSuprafete()){
             $responce->status="error";
-            $responce->message="Eroare la calcul dimensiuni!";
+            $responce->message=$this->t('eroare_la_calcul_dimensiuni');
         }
         if(!$this->calculGreutati()){
             $responce->status="error";
-            $responce->message="Eroare la calcul greutate!";
+            $responce->message=$this->t('eroare_la_calcul_greutate');
         }
 
         if($responce->status!="error"){

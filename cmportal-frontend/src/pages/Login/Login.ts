@@ -1,6 +1,7 @@
 import { Vue, Options } from 'vue-class-component'
 import {CONFIG_ENV} from '@/config';
 import {ServiceUser} from '@/services/ServiceUser';
+import {setQuasarLang} from '@/modules/quasarLang';
 import user from '@/store/user';
 import nomenclatoare from '@/store/nomenclatoare';
 import {getModule} from "vuex-module-decorators";
@@ -187,7 +188,7 @@ export default class Login extends Vue {
                 icon: 'error',
                 position: 'top',
                 timeout: 1000,
-                message: 'Captcha fara success, incercati din nou!'
+                message: (this.$t('message.captcha_failed') as string)
             });
           } else {
             this.onSubmitLoginData();
@@ -201,7 +202,7 @@ export default class Login extends Vue {
                 icon: 'error',
                 position: 'top',
                 timeout: 1000,
-                message: 'Captcha fara success, incercati din nou!'
+                message: (this.$t('message.captcha_failed') as string)
             });
             console.error('Error verifying hCaptcha response:', err);
             return false;
@@ -254,6 +255,7 @@ export default class Login extends Vue {
         console.log("change lang " + this.selectedLang);
         localStorage.setItem('lang', vueInst.selectedLang);
         this.$i18n.locale = vueInst.selectedLang;
+        setQuasarLang(vueInst.selectedLang);
         ServiceUser.changeLang(vueInst.selectedLang);
         vueInst.storeEventsBus.set_event({name:'changeLanguage', params:null});
     }

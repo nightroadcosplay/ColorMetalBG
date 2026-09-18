@@ -6,7 +6,7 @@ import {TOptionCategory} from "@/types/TOptionCategory";
 import {TDimensionsOrder} from "@/types/TDimensionsOrder";
 import {TUm1Um2} from "@/types/TUm1Um2";
 import { TCategoryTip } from '@/types/TCategoryTip';
-import { TTip } from '@/types/TTip';
+import { TTip, TNomTip } from '@/types/TTip';
 
 interface TAjaxResponseSimple {
     status: string;
@@ -29,6 +29,12 @@ interface TAjaxResponseGetNomCategoryList {
     status: string;
     message: string;
     listDataCategories:TOptionCategory[];
+}
+
+interface TAjaxResponseGetNomTipuri {
+    status: string;
+    message: string;
+    tipuri: TNomTip[];
 }
 
 interface TAjaxResponseGetNomCategoryTipuri {
@@ -140,6 +146,12 @@ export class ServiceAdminNomCategory {
         return response.data;
     }
 
+    public static async getNomTipuri(): Promise<TAjaxResponseGetNomTipuri>{
+        const rnd=Math.random();
+        const response = await axios.get(`${CONFIG_ENV.URL_NOMENCLATOARE.tipuri}/${rnd}`);
+        return response.data;
+    }
+
     
     public static async getTip(appid: number): Promise<TAjaxResponseGetNomCategoryTip>{
         const rnd=Math.random();
@@ -157,7 +169,8 @@ export class ServiceAdminNomCategory {
         param.append('file1', tip.img1);//Add data to the form object via append
         param.append('file2', tip.img2);//Add data to the form object via append
         param.append('file3', tip.img3);//Add data to the form object via append
-        param.append('size_type', tip.size_type);
+        param.append('size_type_en', tip.size_type_en || '');
+        param.append('size_type_bg', tip.size_type_bg || '');
         param.append('pid_category', tip.pid_category.toString());
         param.append('appid', tip.appid.toString());
         param.append('type_id', tip.type_id);

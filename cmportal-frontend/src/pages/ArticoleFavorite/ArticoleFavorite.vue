@@ -26,7 +26,7 @@
           >
             <template v-slot:error>
               <div class="absolute-full flex flex-center bg-negative text-white">
-                Cannot load image
+                {{$t('message.cannot_load_image')}}
               </div>
             </template>
           </q-img>
@@ -40,16 +40,16 @@
             <span v-if="item.d">{{$t('message.diameter')}} {{item.d}} mm </span>
             <span v-if="item.h">{{$t('message.height')}} {{item.h}} mm </span>
             <span v-if="item.a">{{$t('message.aliaj')}} {{item.a}} </span>
-            <span v-if="item.k">{{item.k}} </span>
+            <span v-if="item.k">{{typeLabel(item.k)}} </span>
           </span>
           <div>
-            <span v-if="item.um1 && item.qUm1>0" class="app__color--semigray" style="font-weight: lighter;">{{$t('message.my_quantity')}}: {{item.qUm1}} {{item.um1}}</span>
-            <span v-if="item.um2 && item.qUm2>0" class="app__color--semigray" style="font-weight: lighter;padding-left: 1rem;">{{item.qUm2}} {{item.um2}}</span>
+            <span v-if="item.um1 && item.qUm1>0" class="app__color--semigray" style="font-weight: lighter;">{{$t('message.my_quantity')}}: {{item.qUm1}} {{$umLabel(item.um1)}}</span>
+            <span v-if="item.um2 && item.qUm2>0" class="app__color--semigray" style="font-weight: lighter;padding-left: 1rem;">{{item.qUm2}} {{$umLabel(item.um2)}}</span>
           </div>
           <span v-if="item.dorescDebitare" class="app__color--semigray" style="font-weight: lighter;">
             {{item.qBuc}} {{$t('message.cutted_nr')}} <span v-if="item.cuttingLength">{{$t('message.length')}} {{item.cuttingLength}} mm </span><span v-if="item.cuttingWidth"> {{$t('message.width')}} {{item.cuttingWidth}} mm </span>
           </span>
-          <span v-if="item.observatii" class="app__color--semigray" style="font-weight: lighter; font-style: italic;">Obs: {{ item.observatii }}</span>
+          <span v-if="item.observatii" class="app__color--semigray" style="font-weight: lighter; font-style: italic;">{{$t('message.remarks')}}: {{ item.observatii }}</span>
         </div>
         <!--<div >{{item.q_um_base}} Kg</div>-->
         <div  class="shopping_cart__container--btns" style="grid-area: btns;">

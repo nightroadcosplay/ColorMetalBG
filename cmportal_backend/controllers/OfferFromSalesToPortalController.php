@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class OfferFromSalesToPortalController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -80,7 +81,7 @@ public function offersFromSales($token){
 
             if($product->save()===false) {
                         $responce->status="error";
-                        $responce->message='Error on save product code='.$productCmSales->product_code.' for id offer='.$postOffer->id_offer;
+                        $responce->message=$this->t('error_on_save_product_code_s_for_id_offer_s', $productCmSales->product_code, $postOffer->id_offer);
                         $messages = $product->getMessages();
                         foreach ($messages as $message) {$responce->message.=$message;}
                         break;
@@ -125,7 +126,7 @@ public function offersFromSales($token){
                         }
                     $userMail=new UsersMailboxController();
                     $val = $offer->id_valuta == 'RON' ? $offer->val_finala_cu_tva_ron : ($offer->id_valuta == 'EUR' ? $offer->val_finala_cu_tva_eur : $offer->val_finala_cu_tva_huf);
-                    $userMail->insertNewMessage($offer->cif,$offer->id_offer,'NewOfferFromSales','n','y','Echipa ColorMetal',$offer->track_user_id,'cmsales','Oferta noua!','Ati primit o oferta noua in valoare de '. $val . ' ' . $offer->id_valuta . ' pentru cererea '.$offer->id_offer);
+                    $userMail->insertNewMessage($offer->cif,$offer->id_offer,'NewOfferFromSales','n','y','ColorMetal Team',$offer->track_user_id,'cmsales','New Offer!','You have received a new offer worth '. $val . ' ' . $offer->id_valuta . ' for request '.$offer->id_offer);
 
                     $count = CountNewDataModel::findFirst([
                         'conditions' => 'cif = ?1 and userid = ?2',
@@ -148,7 +149,7 @@ public function offersFromSales($token){
                       //die(var_dump(  $userMail->message));
                 }else{
                     $responce->status="error";
-                    $responce->message="nu poate fi identificata oferta cu slid=".$offer->offer_slid;
+                    $responce->message=$this->t('nu_poate_fi_identificata_oferta_cu_slid_s', $offer->offer_slid);
                     break;
                 }
 
@@ -201,7 +202,7 @@ public function lansareOrdersFromSales($token){
                                             //die(var_dump(  $userMail->message));
                                 }else{
                                         $responce->status="error";
-                                        $responce->message="nu poate fi identificata oferta cu slid=".$offer->offer_slid;
+                                        $responce->message=$this->t('nu_poate_fi_identificata_oferta_cu_slid_s', $offer->offer_slid);
                                         break;
                                 }
 

@@ -6,6 +6,7 @@ use Phalcon\Encryption\Security;
 
 class AdminUsersController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
 {
 
@@ -64,13 +65,13 @@ public function newUser(){
     $user = Users::findFirstByUserid($userid);
     if($user){
         $responce->status="error";
-        $responce->message="UserId existent!";
+        $responce->message=$this->t('userid_existent');
         die(json_encode($responce));
     }
     $user = Users::findFirstByEmail($emailAddress);
     if($user){
         $responce->status="error";
-        $responce->message="Exista un utilizator (".$user->userid.") cu acest email!";
+        $responce->message=$this->t('exista_un_utilizator_s_cu_acest_email', $user->userid);
         die(json_encode($responce));
     }
 
@@ -78,7 +79,7 @@ public function newUser(){
 
     if(!$Company){
         $responce->status="error";
-        $responce->message="Nu ati indicat o companie valida din care face parte Utilizatorul!";
+        $responce->message=$this->t('nu_ati_indicat_o_companie_valida_din_care_face_parte');
         die(json_encode($responce));
     }
 
@@ -104,7 +105,7 @@ public function newUser(){
     } else {
         $responce->userappid=$user->appid;
         $responce->status="success";
-        $responce->message="Utilizatorul a fost creat! Pentru a seta o parola accesati detaliile utilizatorului!";
+        $responce->message=$this->t('utilizatorul_a_fost_creat_pentru_a_seta_o_parola_accesati');
 
         $logEvent=new LogEventsController();
         $logEvent->logEvent($user->appid,'new','users');
@@ -133,7 +134,7 @@ if($user){
     $responce->user->hasAvatar=((!empty($user->file_extension_for_profile) && strlen($user->file_extension_for_profile)>1)?'y':'n');
     }else{
             $responce->status="error";
-            $responce->message="Utilizator inexistent";
+            $responce->message=$this->t('utilizator_inexistent');
         }
 die(json_encode($responce));
 }
@@ -186,11 +187,11 @@ public function resetPassword($appid){
             }
         } else {
             $responce->status="success";
-            $responce->message="Parola este: <b>color123metal</b><br />Va rugam sa comunicati aceasta parola utilizatorului. In viitor, urmeaza sa fie implementat mail catre utilizator, cu link de resetare.";
+            $responce->message=$this->t('parola_este_color123metal_va_rugam_sa_comunicati_aceasta');
         }
     }else{
         $responce->status="error";
-        $responce->message="Userul nu poate fi identificat!";
+        $responce->message=$this->t('userul_nu_poate_fi_identificat');
     }
     die(json_encode($responce));
 }

@@ -28,6 +28,7 @@ export type TProductBasket = {
     cuttingLength:number|null;
     cuttingWidth:number|null;
     enumPlacaBara:TEnumPlacaBara;
+    kgFromUm2?: string | null;
     densitate:number|null;
     observatii: string;
     nr_ord:number;

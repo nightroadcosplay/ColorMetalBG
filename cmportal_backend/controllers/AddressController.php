@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class AddressController extends Controller
 {
+use TranslatesMessages;
 	public function indexAction()
     {
 
@@ -44,7 +45,7 @@ class AddressController extends Controller
 
 		if($address->save()===false) {
             $responce->status="error";
-            $responce->message='Error on save adrress code='.$postData->slid;
+            $responce->message=$this->t('error_on_save_adrress_code_s', $postData->slid);
             $messages = $address->getMessages();
             if($messages) {
                 foreach ($messages as $message) {$responce->message.=$message;}
@@ -93,15 +94,15 @@ class AddressController extends Controller
 	    if($address) {
 	    	if($address->delete() === false) {
 	    		$responce->status="error";
-           	 	$responce->message='Error on delete adrress code='.$postData->slid;
+           	 	$responce->message=$this->t('error_on_delete_adrress_code_s', $postData->slid);
 	    	} else {
 	        	$this->db->commit();
 	        	$responce->status="success";
-	        	$responce->message='Delete successfully!';
+	        	$responce->message=$this->t('delete_successfully');
 	    	}
 	    } else {
     		$responce->status="error";
-       	 	$responce->message='Adresa nu este in Portal!';
+       	 	$responce->message=$this->t('adresa_nu_este_in_portal');
 	    }
 	    $response
         ->setJsonContent($responce)
@@ -125,15 +126,15 @@ class AddressController extends Controller
 	    if($address) {
 	    	if($address->delete() === false) {
 	    		$responce->status="error";
-           	 	$responce->message='Error on delete adrress code='.$postData->slid;
+           	 	$responce->message=$this->t('error_on_delete_adrress_code_s', $postData->slid);
 	    	} else {
 	        	$this->db->commit();
 	        	$responce->status="success";
-	        	$responce->message='Delete successfully!';
+	        	$responce->message=$this->t('delete_successfully');
 	    	}
 	    } else {
     		$responce->status="error";
-       	 	$responce->message='Adresa nu este in Portal!';
+       	 	$responce->message=$this->t('adresa_nu_este_in_portal');
 	    }
 	    $response
         ->setJsonContent($responce)

@@ -12,6 +12,8 @@ import nomenclatoare from '@/store/nomenclatoare';
 import {getFavorites} from '@/modules/getFavorites'
 import {TProductBasket} from '@/types/TProductBasket';
 import {TEnumPlacaBara} from '@/types/TEnumPlacaBara';
+import {isUmKg} from '@/modules/umLabel';
+import {effectiveUmRatio} from '@/modules/umDisplay';
 import HierarchicalChainBrowseHeader from '@/components/HierarchicalChainBrowseHeader/HierarchicalChainBrowseHeader.vue'
 import {getBasket} from "@/modules/getBasket";
 import {CONFIG_ENV} from "@/config";
@@ -19,6 +21,7 @@ import latinize from 'latinize';
 import eventbus from "@/store/eventbus";
 import { ServiceAdminNomCategory } from '@/services/ServiceAdminNomCategory';
 import { parsePostgresArray } from '@/modules/utils';
+import {localizedTypeLabel} from '@/modules/typeLabel';
 
 type TSize={
     "l":number,
@@ -47,6 +50,9 @@ type TBrowseArticles={
     arrType:  Array<string>;
     arrRollWeight: Array<number>;
     categoryName: string;
+    categoryNameRO: string;
+    categoryNameEN: string;
+    categoryNameBG: string;
     categoryPid: number;
     isParentForArticles: string;
     withLength: string;
@@ -86,6 +92,8 @@ export default class BrowseArticles extends Vue {
     public densitate :number|null = 0;
     public typeOfArticle :TEnumPlacaBara=TEnumPlacaBara.others;
     public qUm1 = 0;
+    //nom_category_product.kg_from_um2 for the selected article's category
+    public kgFromUm2 = 'n';
     public qUm2 = 0;
     declare public $refs: any;
     public urlToJPG = CONFIG_ENV.URL_CATEGORY.getJPG;
@@ -96,7 +104,8 @@ export default class BrowseArticles extends Vue {
     public selectedUM1 = true;
     public selectedUM2 = true;
     public tip_um = 'um12';
-    public stocArticol = 0;
+    public stocArticolBG = 0;
+    public stocArticolRO = 0;
     public pid='';
     public EventBusStore = getModule(eventbus);
 
@@ -112,6 +121,9 @@ export default class BrowseArticles extends Vue {
         arrType: [],
         arrRollWeight: [],
         categoryName: '',
+        categoryNameRO: '',
+        categoryNameEN: '',
+        categoryNameBG: '',
         categoryPid: 0,
         isParentForArticles: '',
         withDiameter: 'n',
@@ -169,6 +181,12 @@ export default class BrowseArticles extends Vue {
     public storeBasket = getModule(basket);
     public storeFavorites = getModule(favorites);
     public storeNomenclatoare = getModule(nomenclatoare);
+
+    // Type label in the current language. The buttons keep the RO text as their
+    // value: it is what the article lookup, favorites and basket match on.
+    public typeLabel(sizeType: string|null|undefined): string {
+        return localizedTypeLabel(sizeType, this.$i18n.locale);
+    }
 
 
     
@@ -483,6 +501,7 @@ export default class BrowseArticles extends Vue {
                     vueInst.selectedSize.um2=response.um2;
                     vueInst.productCode=response.productCode;
                     vueInst.typeOfArticle=response.enumPlacaBara;
+                    vueInst.kgFromUm2=response.kgFromUm2 ? response.kgFromUm2 : 'n';
                     vueInst.densitate=response.densitate;
                     vueInst.isPlacaAluminiu=response.isPlacaAluminiu;
                     vueInst.selectedSize.um1_to_um2=response.um1ToUm2*1;
@@ -493,9 +512,12 @@ export default class BrowseArticles extends Vue {
                     ServiceProduct.getArticleStock(response.productCode).then(response => {
                         vueInst.loadingStock = false;
                         console.log(response);
-                        vueInst.stocArticol = response.itemStock;
-                        if(response.itemStock > 0) {
+                        vueInst.stocArticolBG = response.itemStockBG;
+                        vueInst.stocArticolRO = response.itemStockRO;
+                        if(response.itemStockBG > 0) {
                             vueInst.labelStock = vueInst.$t('message.in_stock');
+                        } else if(response.itemStockRO > 0) {
+                            vueInst.labelStock = vueInst.$t('message.arrival_in_2_weeks');
                         } else {
                             vueInst.labelStock = vueInst.$t('message.in_process_supply');
                         }
@@ -596,17 +618,52 @@ export default class BrowseArticles extends Vue {
     }
 
     public get HideUm1IfBucDebit():boolean{
-        if(this.dorescDebitare && this.selectedSize.um1 && this.selectedSize.um1==='BUC'){
+        if(this.dorescDebitare && this.selectedSize.um1 && (this.selectedSize.um1==='BUC' || this.selectedSize.um1==='БРОЙ')){
             return true;
         }
         else{return false;}
     }
 
     public get HideUm2IfBucDebit():boolean{
-        if(this.dorescDebitare && this.selectedSize.um2 && this.selectedSize.um2==='BUC'){
+        if(this.dorescDebitare && this.selectedSize.um2 && (this.selectedSize.um2==='BUC' || this.selectedSize.um2==='БРОЙ')){
             return true;
         }
         else{return false;}
+    }
+
+    //For a plate or a bar without cutting the quantity is entered in um2 (buc/m/m2)
+    //and the weight follows from it, so the KG field stays read-only. Driven by
+    //nom_category_product.kg_from_um2 rather than the placa/bara shape, because
+    //that shape also covers flat bars, profiles and square tubes.
+    //Only applies while um2 is actually available, otherwise there would be no
+    //quantity field left to type in.
+    public get ReadonlyKgForPlacaBara():boolean{
+        const cuDebitare = !!(this.selectedSize.cuDebitare && this.dorescDebitare);
+        const um2Available = !!(this.selectedSize.um2 && this.selectedSize.um2.length>0 && !this.HideUm2IfBucDebit);
+        return this.kgFromUm2==='y' && !cuDebitare && um2Available && isUmKg(this.selectedSize.um1);
+    }
+
+    public get EffectiveUm1ToUm2Ratio():number{
+        return effectiveUmRatio(this.selectedSize.um1_to_um2);
+    }
+
+    //With a ratio of 1 um1 and um2 always hold the same number, so on a plate or
+    //bar - where the KG field is already read-only - showing it twice is noise.
+    //The basket / request / offer lists apply the same rule through
+    //hideKgQuantity in modules/umDisplay.
+    public get BlankQUm1Input():boolean{
+        return this.ReadonlyKgForPlacaBara && this.EffectiveUm1ToUm2Ratio === 1;
+    }
+
+    //Display-only proxy for the um1 input. qUm1 itself keeps its value: the
+    //basket payload, articleCouldBePutInBasket and the data sent to sales all
+    //read it, so only the rendered input is blanked.
+    public get qUm1Input():number|string{
+        return this.BlankQUm1Input ? '' : this.qUm1;
+    }
+
+    public set qUm1Input(value:number|string){
+        this.qUm1 = typeof value === 'number' ? value : (Number(value) || 0);
     }
 
     public changeTipUm(val: boolean, tip: number): void {
@@ -680,7 +737,7 @@ export default class BrowseArticles extends Vue {
                 message: this.$t('message.length_between')
             })
             return;
-        } else if(this.selectedSize.um2 == 'BUC' && !Number.isInteger(this.qUm2) && this.selectedUM2) {
+        } else if((this.selectedSize.um2 == 'BUC' || this.selectedSize.um2 == 'БРОЙ') && !Number.isInteger(this.qUm2) && this.selectedUM2) {
             vueInst.$q.notify({
                 color: 'red',
                 textColor: 'white',
@@ -804,7 +861,7 @@ export default class BrowseArticles extends Vue {
                 message: this.$t('message.length_between')
             })
             return;
-        } else if(this.selectedSize.um2 == 'BUC' && !Number.isInteger(this.qUm2) && this.selectedUM2) {
+        } else if((this.selectedSize.um2 == 'BUC' || this.selectedSize.um2 == 'БРОЙ') && !Number.isInteger(this.qUm2) && this.selectedUM2) {
             vueInst.$q.notify({
                 color: 'red',
                 textColor: 'white',
@@ -872,6 +929,7 @@ export default class BrowseArticles extends Vue {
                                 cuttingLength:vueInst.cuttingLength,
                                 cuttingWidth:vueInst.cuttingWidth,
                                 enumPlacaBara:response.enumPlacaBara,
+                                kgFromUm2:response.kgFromUm2,
                                 densitate:response.densitate,
                                 isInFavorite:vueInst.storeFavorites.favorites.some(favorite=>{return favorite.productCode==response.productCode}),
                                 observatii:latinize(vueInst.inputFreeTextComments),
@@ -1030,18 +1088,23 @@ export default class BrowseArticles extends Vue {
     public coreleazaUm1Um2(umModificat:string): void {
         const vueInst=this;
         // console.log('coreleaza um1 um2 ' + umModificat);
-       if(umModificat=='um1'){
-           vueInst.qUm2=Number((vueInst.qUm1*1/vueInst.selectedSize.um1_to_um2).toFixed(2));
-       }else{
-           if(umModificat=='um2') {
-               vueInst.qUm1=Number((vueInst.qUm2*1*vueInst.selectedSize.um1_to_um2).toFixed(2));
-           }
-       }
+        const ratio = vueInst.EffectiveUm1ToUm2Ratio;
+        if(umModificat=='um1'){
+           vueInst.qUm2=Number((vueInst.qUm1*1/ratio).toFixed(2));
+        } else{
+            if(umModificat=='um2') {
+                vueInst.qUm1=Number((vueInst.qUm2*1*ratio).toFixed(2));
+            }
+        }
 
-        if(vueInst.stocArticol > vueInst.qUm1) {
-            vueInst.labelStock = this.$t('message.in_stock');
+        if(vueInst.qUm1 > vueInst.stocArticolBG) {
+            if(vueInst.qUm1 > vueInst.stocArticolRO) {
+                vueInst.labelStock = vueInst.$t('message.in_process_supply');
+            } else {
+                vueInst.labelStock = vueInst.$t('message.arrival_in_2_weeks');
+            }
         } else {
-            vueInst.labelStock = this.$t('message.limited_stock');
+            vueInst.labelStock = vueInst.$t('message.in_stock');
         }
     }
 
@@ -1094,10 +1157,27 @@ export default class BrowseArticles extends Vue {
     }
 
     public get ErrorRuleIntegerNumberBuc(): boolean {
-        if(this.selectedSize.um2 == 'BUC') {
+        if(this.selectedSize.um2 == 'BUC' || this.selectedSize.um2 == 'БРОЙ') {
             return !Number.isInteger(this.qUm2);
         }
         return false;
+    }
+
+    //Without cutting a bar comes in the selected length, so a quantity in metres
+    //has to be a whole number of bars. Compared in mm to avoid float noise.
+    //Like ErrorRuleIntegerNumberBuc it only flags the field.
+    public get ErrorRuleMultipleOfLength(): boolean {
+        const cutting = !!(this.selectedSize.cuDebitare && this.dorescDebitare);
+        const um2 = (this.selectedSize.um2 || '').toUpperCase();
+        const lengthMm = Number(this.selectedLength);
+        if(this.typeOfArticle !== 'bara' || cutting || (um2 !== 'M' && um2 !== 'ML') || !lengthMm || !this.qUm2) {
+            return false;
+        }
+        return Math.round(Number(this.qUm2) * 1000) % lengthMm !== 0;
+    }
+
+    public get SelectedLengthInMetres(): number {
+        return Number(this.selectedLength) / 1000;
     }
 
     public coreleazaUm1Um2CuDebitare(): void {
@@ -1113,7 +1193,7 @@ export default class BrowseArticles extends Vue {
                 vueInst.qUm1=qKg;
             }
 
-            if(vueInst.selectedSize.um2==='ML'){
+            if(vueInst.selectedSize.um2==='ML' || vueInst.selectedSize.um2==='M'){
                 vueInst.qUm2=qML;
             }
         }
@@ -1134,10 +1214,14 @@ export default class BrowseArticles extends Vue {
             }
         }
 
-        if(vueInst.stocArticol > vueInst.qUm1) {
-            vueInst.labelStock = this.$t('message.in_stock');
+        if(vueInst.qUm1 > vueInst.stocArticolBG) {
+            if(vueInst.qUm1 > vueInst.stocArticolRO) {
+                vueInst.labelStock = vueInst.$t('message.in_process_supply');
+            } else {
+                vueInst.labelStock = vueInst.$t('message.arrival_in_2_weeks');
+            }
         } else {
-            vueInst.labelStock = this.$t('message.limited_stock');
+            vueInst.labelStock = vueInst.$t('message.in_stock');
         }
 
        // $this->kg_total=$this->kg_per_buc*$this->buc;
@@ -1211,6 +1295,7 @@ export default class BrowseArticles extends Vue {
         vueInst.selectedRollWeight = null;
         vueInst.isPlacaAluminiu = '0';
         vueInst.typeOfArticle=TEnumPlacaBara.others;
+        vueInst.kgFromUm2='n';
         vueInst.inputFreeTextComments = '';
         vueInst.initializeSelectedSize();
         vueInst.selectedUM1 = true;
@@ -1231,6 +1316,9 @@ export default class BrowseArticles extends Vue {
             arrType: [],
             arrRollWeight: [],
             categoryName: '',
+            categoryNameRO: '',
+            categoryNameEN: '',
+            categoryNameBG: '',
             categoryPid: 0,
             isParentForArticles: '',
             withDiameter: 'n',
@@ -1319,12 +1407,12 @@ export default class BrowseArticles extends Vue {
 
     @Watch('pidCategory', { immediate: true, deep: false })
     onPidCategoryChanged(newVal: string): void {
-        console.log('Watch onPidCategoryChanged')
+        console.log('Watch onPidCategoryChanged', newVal);
         const vueInst=this;
         vueInst.resetVariables();
         vueInst.$q.loading.show();
         vueInst.pid = newVal;
-        if(newVal.includes('{')) {
+        if(typeof newVal === 'string' && newVal.includes('{')) {
             newVal = parsePostgresArray(newVal)[0];
         }
         vueInst.getData(newVal);

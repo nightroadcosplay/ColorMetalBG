@@ -5,6 +5,7 @@ use Phalcon\Filter\FilterFactory;
 
 class BasketController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -45,13 +46,21 @@ public function identifyArticleAndPutIntoBasket(){
         $responce=$this->insert($identifiedArticol->categoryPid,$identifiedArticol->productPid,$identifiedArticol->productCode,$nrBuc,$selectedLength,$selectedWidth,$selectedThickness,$selectedDiameter,$selectedHeight,$selectedAlloy,$selectedType,$um1,$um2,$qUm1, $qUm2,$dorescDebitare,$cuttingLength, $cuttingWidth, $inputFreeTextComments, $tip_um);
 
         if($responce->status=="success"){
+                // Needs 'conditions': findFirst(['appid'=>...]) ignores the key
+                // and returns the view's first row.
                 $productInBasket= VBasketModel::findFirst(
                     [
-                        'appid'=>$responce->appid
+                        'conditions' => 'appid = ?1',
+                        'bind'       => [1 => $responce->appid]
                     ]
                 );
-                $responce->productName=$productInBasket->product_name_ro ?? null;
-                $responce->categoryName=$productInBasket->category_name_ro ?? null;
+                if($productInBasket){
+                    $responce->productName=$this->localizedName($productInBasket->product_name_ro, $productInBasket->product_name_en, $productInBasket->product_name_bg);
+                    $responce->productNameRO=$productInBasket->product_name_ro;
+                    $responce->productNameEN=$productInBasket->product_name_en;
+                    $responce->productNameBG=$productInBasket->product_name_bg;
+                    $responce->categoryName=$productInBasket->category_name_ro ?? null;
+                }
         }
 
     }else{//nu exista articolul, poate vrea alte dimensiuni
@@ -78,6 +87,11 @@ public function getArticleByCodeAndPutIntoBasket(){
         $productCode=$_POST['productCode'];
         $qUm1=$_POST['qUm1'];
         $qUm2=$_POST['qUm2'];
+        $nrBuc = $_POST['nrBucati'] ?? 1;
+        $dorescDebitare = $_POST['dorescDebitare'] ?? 'n';
+        $cuttingLength = $_POST['cuttingLength'] ?? 0;
+        $cuttingWidth = $_POST['cuttingWidth'] ?? 0;
+        $tip_um = $_POST['tip_um'] ?? 'um1';
         if(isset($_POST['inputFreeTextComments'])){
             $inputFreeTextComments=$_POST['inputFreeTextComments'];
         } else{$inputFreeTextComments='';  }
@@ -98,6 +112,7 @@ public function getArticleByCodeAndPutIntoBasket(){
                 $responce=$this->insert($arr[0],
                 $identifiedArticol->pid,
                 $identifiedArticol->code,
+                $nrBuc,
                 $identifiedArticol->sizeLength,
                 $identifiedArticol->sizeWidth,
                 $identifiedArticol->sizeThickness,
@@ -107,17 +122,29 @@ public function getArticleByCodeAndPutIntoBasket(){
                 $identifiedArticol->sizeType,
                 $identifiedArticol->um1,
                 $identifiedArticol->um2,
-                $qUm1, 
-                $qUm2, 
-                $inputFreeTextComments);
+                $qUm1,
+                $qUm2,
+                $dorescDebitare,
+                $cuttingLength,
+                $cuttingWidth,
+                $inputFreeTextComments,
+                $tip_um);
 
                 if($responce->status=="success"){
+                                // Needs 'conditions': findFirst(['appid'=>...]) ignores
+                                // the key and returns the view's first row.
                                 $productInBasket= VBasketModel::findFirst(
                                         [
-                                                'appid'=>$responce->appid
+                                                'conditions' => 'appid = ?1',
+                                                'bind'       => [1 => $responce->appid]
                                         ]
                                 );
-                                // $responce->productName=$productInBasket->product_name_ro;
+                                if($productInBasket){
+                                        $responce->productName=$this->localizedName($productInBasket->product_name_ro, $productInBasket->product_name_en, $productInBasket->product_name_bg);
+                                        $responce->productNameRO=$productInBasket->product_name_ro;
+                                        $responce->productNameEN=$productInBasket->product_name_en;
+                                        $responce->productNameBG=$productInBasket->product_name_bg;
+                                }
                                 // $responce->categoryName=$productInBasket->category_name_ro;
                 }
 
@@ -150,7 +177,7 @@ public function insert($pidCategory,$productPid,$productCode,$nrBuc,$selectedLen
     $userid=$this->session->get('userId');
     if(!isset($userid)) {
         $responce->status="error";
-        $responce->message='Sesiunea a expirat!';
+        $responce->message=$this->t('sesiunea_a_expirat');
         return $responce;
     }
 
@@ -248,7 +275,7 @@ public function insert($pidCategory,$productPid,$productCode,$nrBuc,$selectedLen
     $this->db->fetchOne($sql);
     if ($product->save()===false) {
         $responce->status="error";
-        $responce->message='Error for product code '.$productCode;
+        $responce->message=$this->t('error_for_product_code_s', $productCode);
         $messages = $product->getMessages();
         foreach ($messages as $message) {
             $responce->message.=$message;
@@ -256,9 +283,9 @@ public function insert($pidCategory,$productPid,$productCode,$nrBuc,$selectedLen
     } else {
         $responce->status="success";
         if($alreadyInBasket){
-            $responce->message="Inca ".$qUm1." ".$um1." a fost adaugat in cos! In total, acum sunt ".$product->qum1.$product->um1."!";
+            $responce->message=$this->t('inca_s_s_a_fost_adaugat_in_cos_in_total_acum_sunt_s_s', $qUm1, $um1, $product->qum1, $product->um1);
         }else{
-            $responce->message="Produsul a fost adaugat in cos!";
+            $responce->message=$this->t('produsul_a_fost_adaugat_in_cos');
         }
         //mai departe ajunge numai daca nu sunt erori
         $responce->appid=$product->appid;
@@ -309,6 +336,8 @@ public function getMyBasket(){
                         "q_um_base"=>'',
                         "um1"=>$product->um1,
                         "um2"=>$product->um2,
+                        "um1_to_um2"=>$product->um1_to_um2,
+                        "kgFromUm2"=>$product->kg_from_um2,
                         "qUm1"=>1*$product->qum1,
                         "qUm2"=>1*$product->qum2,
                         "l"=>$product->size_length,

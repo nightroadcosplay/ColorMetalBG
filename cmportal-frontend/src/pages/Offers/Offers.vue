@@ -122,35 +122,6 @@
       </div>
     </div>
 
-    <q-dialog
-        v-model="dialogViewOferta"
-        persistent
-        :maximized="true"
-        :transition-show="dialogTransitionShow"
-        :transition-hide="dialogTransitionHide"
-    >
-      <q-card class="bg-white">
-        <q-bar v-bind:class="{ 'bg-blue-grey-11': $q.platform.is.desktop , 'bg-white': $q.platform.is.mobile }">
-          <q-btn dense v-if="$q.platform.is.desktop" flat icon="arrow_back" color="black" size="md" @click="closeCurrentView">
-            <q-tooltip content-class="bg-grey text-white">{{$t('message.close')}}</q-tooltip>
-          </q-btn>
-
-          <q-icon v-if="$q.platform.is.mobile"  name="arrow_back_ios" class="app__arrow--back" @click="closeCurrentView" />
-          <div class="app__back__bar--title" v-if="$q.platform.is.desktop" style="position: absolute;left: 50%;margin-left: -100px;">{{dinamicComponentTitle}} {{selectedOfferSlid}} / {{selectedOfferDate}} {{ nume_utilizator_oferta }}</div>
-          <div class="app__back__bar--title " v-if="$q.platform.is.mobile" style="position: absolute;left: calc(50% - 120px); top:10px;">{{dinamicComponentTitle}} {{selectedOfferSlid}} / {{selectedOfferDate}} {{ nume_utilizator_oferta }}</div>
-          <q-space dense v-if="$q.platform.is.desktop" />
-
-        </q-bar>
-        <q-card-section>
-          <component v-bind:is="dynamicComponent" :propOfferId="selectedOfferId" :closeHandler="closeFormViewOferta" ></component>
-        </q-card-section>
-        <!--
-        <q-card-section>
-          <Oferta :propOfferId="selectedOfferId" :closeHandler="closeFormViewOferta"/>
-        </q-card-section>
-        -->
-      </q-card>
-    </q-dialog>
     <q-dialog v-model="fixed" full-width>
       <q-card class="my_card" >
         <q-card-section class="row items-center">
@@ -191,14 +162,14 @@
                 <q-item v-for="(certificat, index) in certificates" :key="certificat.ItemNo">
                   <q-card v-if="$q.platform.is.mobile" class="my_card_4" >
                     <q-item-section>
-                        <q-item-label><b>ItemNo: </b></q-item-label>
+                        <q-item-label><b>{{$t('message.item_no')}}: </b></q-item-label>
                     </q-item-section>
                     <q-item-section >
                         <q-item-label caption>{{ certificat.ItemNo }}</q-item-label>
                     </q-item-section>
                     <br>
                     <q-item-section>
-                        <q-item-label><b>Description: </b></q-item-label>
+                        <q-item-label><b>{{$t('message.description')}}: </b></q-item-label>
                     </q-item-section>
                     <q-item-section>
                         <q-item-label caption>{{ certificat.Description }}</q-item-label>
@@ -208,11 +179,11 @@
                     </q-card-actions>
                   </q-card>
                   <q-item-section v-if="$q.platform.is.desktop" no-wrap>
-                        <q-item-label><b>ItemNo:</b> {{ certificat.ItemNo }}</q-item-label>
+                        <q-item-label><b>{{$t('message.item_no')}}:</b> {{ certificat.ItemNo }}</q-item-label>
                     </q-item-section>
                     
                     <q-item-section v-if="$q.platform.is.desktop" no-wrap>
-                        <q-item-label><b>Description:</b> {{ certificat.Description }}</q-item-label>
+                        <q-item-label><b>{{$t('message.description')}}:</b> {{ certificat.Description }}</q-item-label>
                     </q-item-section>
                     
                     <q-item-section v-if="$q.platform.is.desktop" class="pdf_icon">
@@ -475,6 +446,14 @@
 .my_card{
   width: 90%;
   height: 90%;
+  overflow-y: auto;
+}
+/* keep the title / download / close row in view while the PDF scrolls */
+.my_card > :first-child{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: white;
 }
 .my_card_2{
   width: 100%;

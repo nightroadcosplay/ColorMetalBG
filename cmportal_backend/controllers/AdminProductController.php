@@ -6,6 +6,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class AdminProductController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -24,13 +25,13 @@ public function editProduct($pid){
 
     if(empty($_POST['code'])){
             $responce->status="error";
-            $responce->message="Codul produsului este obligatoriu";
+            $responce->message=$this->t('codul_produsului_este_obligatoriu');
             die(json_encode($responce));
     }
 
     if(empty($_POST['um1'])){
             $responce->status="error";
-            $responce->message="Um1 este obligatoriu";
+            $responce->message=$this->t('um1_este_obligatoriu');
             die(json_encode($responce));
     }
 
@@ -83,7 +84,7 @@ public function editProduct($pid){
             die(json_encode($responce));
     }else{
         $responce->status="success";
-        $responce->message=($pid=='0'? "Articolul a fost adaugat cu succes!":"Articolul a fost modificat!");
+        $responce->message=($pid=='0'? $this->t('articolul_a_fost_adaugat_cu_succes'):$this->t('articolul_a_fost_modificat'));
     }
 
     //mai departe ajunge numai daca nu sunt erori
@@ -126,12 +127,12 @@ public function changeStatusActivInactiv($pid,$newStatus){
                 die(json_encode($responce));
         }else{
             $responce->status="success";
-            $responce->message="Vizibilitatea a fost schimbata cu succes!";
+            $responce->message=$this->t('vizibilitatea_a_fost_schimbata_cu_succes');
         }
     }
     else{
             $responce->status="error";
-            $responce->message="Articolul nu poate fi identificat!";
+            $responce->message=$this->t('articolul_nu_poate_fi_identificat');
     }
 
     //mai departe ajunge numai daca nu sunt erori
@@ -226,16 +227,23 @@ public function getPage($rowsPerPage,$pageNumber,$rnd){
     $sqlConditions='';
     $filterString = $this->request->get('filter_text', ['string','upper']);
 
-    $arrFilter = explode(" ", $filterString);
-    foreach ($arrFilter as $key => $value) {
-        $sqlConditions.=" product_code like '%".$value."%' or product_name_ro like '%".$value."%'";
+    // Every word must match the code or the name in some language - BG products
+    // have no RO name. Bound, not pasted into the SQL.
+    $parameters = ['order' => 'product_name_'.$this->dataLang()];
+    $conditions = [];
+    $bind = [];
+    foreach (explode(" ", (string)$filterString) as $key => $value) {
+        if ($value === '') { continue; }
+        $conditions[] = "(product_code ILIKE :w$key: OR product_name_ro ILIKE :w$key: OR product_name_en ILIKE :w$key: OR product_name_bg ILIKE :w$key:)";
+        $bind["w$key"] = '%'.$value.'%';
+    }
+    if ($conditions) {
+        $parameters['conditions'] = implode(' AND ', $conditions);
+        $parameters['bind'] = $bind;
     }
     $paginator = new PaginatorModel([
         'model'      => VNomProduct::class,
-        'parameters' => [
-            'conditions' => $sqlConditions,
-            'order'      => 'product_name_ro',
-        ],
+        'parameters' => $parameters,
         'limit'      => $rowsPerPage,
         'page'       => $pageNumber,
     ]);

@@ -6,6 +6,7 @@ use Phalcon\Image\Factory;
 
 class BrowseCategoryController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -64,7 +65,7 @@ if($categories){
     }
     else{
         $responce->status="error";
-        $responce->message="Nu poate fi interogate datele!";
+        $responce->message=$this->t('nu_poate_fi_interogate_datele');
     }
 
 $response
@@ -140,14 +141,14 @@ public function getCategory($pid){
         //array_unshift($responce->hierarchicalChain,["categoryPid"=>$pidParentCategToGet,"categoryName"=>$selectedCategory->name_ro]);
         while($categoryParent = NomCategoryProduct::findFirstByPid($pidParentCategToGet)){
             if($categoryParent->parent_pid){
-                array_unshift($responce->hierarchicalChain,["categoryPid"=>$categoryParent->pid,"categoryName"=>$categoryParent->name_ro] );
+                array_unshift($responce->hierarchicalChain,["categoryPid"=>$categoryParent->pid,"categoryName"=>$categoryParent->name_ro,"categoryNameRO"=>$categoryParent->name_ro,"categoryNameEN"=>$categoryParent->name_en,"categoryNameBG"=>$categoryParent->name_bg] );
             }
             $pidParentCategToGet=$categoryParent->parent_pid;
         }
     }
     else{
         $responce->status="error";
-        $responce->message="Nu poate fi identificata aceasta categorie!";
+        $responce->message=$this->t('nu_poate_fi_identificata_aceasta_categorie');
     }
     $response
         ->setHeader('Cache-Control', 'private, max-age=0, must-revalidate')

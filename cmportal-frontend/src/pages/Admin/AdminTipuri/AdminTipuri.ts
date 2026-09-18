@@ -34,7 +34,9 @@ export default class AdminTipuri extends Vue {
     }
     public editingCategory:TTip&{img1:any|null,img2:any|null,img3:any|null}={
         appid: 0,
-        size_type: '',
+        size_type_ro: '',
+        size_type_en: '',
+        size_type_bg: '',
         type_id: '',
         pid_category: 0,
         img1: null,
@@ -62,7 +64,9 @@ export default class AdminTipuri extends Vue {
         ServiceAdminNomCategory.getTip(appid).then(response=>{
             if(response.status=='success'){
                 vueInst.editingCategory.appid=appid;
-                vueInst.editingCategory.size_type=response.tip.size_type;
+                vueInst.editingCategory.size_type_ro=response.tip.size_type_ro;
+                vueInst.editingCategory.size_type_en=response.tip.size_type_en;
+                vueInst.editingCategory.size_type_bg=response.tip.size_type_bg;
                 vueInst.editingCategory.pid_category=response.tip.pid_category;
                 vueInst.editingCategory.type_id=response.tip.type_id;
                 ServiceAdminNomCategory.getImagesCategoryAsStringTip(vueInst.editingCategory.type_id).then((response:any)=>{
@@ -109,6 +113,14 @@ export default class AdminTipuri extends Vue {
                 vueInst.onResetFormCategory();
                 vueInst.loadTreeDataCategoriesFromDB();
                 vueInst.$q.loading.hide();
+            } else {
+                vueInst.$q.loading.hide();
+                vueInst.$q.notify({
+                    color: 'red',
+                    textColor: 'white',
+                    position:'top',
+                    message: response.message
+                });
             }
         });
     }

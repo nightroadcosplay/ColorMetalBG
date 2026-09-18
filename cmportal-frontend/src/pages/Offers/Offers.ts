@@ -8,8 +8,6 @@ import {ServiceOffer} from '@/services/ServiceOffer';
 import {TOfferHeader} from "@/types/TOfferHeader";
 import {TOffer} from "@/types/TOffer";
 import StatusOferta from "@/components/StatusOferta.vue";
-import Oferta from "@/pages/Oferta/Oferta.vue"
-import Cerere from "@/pages/Cerere/Cerere.vue"
 import {timeUntilNow, timeUntilFutureDate} from '@/modules/utils'
 import {timeDateHuman} from '@/modules/utils'
 import eventbus from "@/store/eventbus";
@@ -22,23 +20,17 @@ import { isSet } from '@vue/shared';
 
 @Options({
     name: "Offers",
-    components: {StatusOferta, Oferta, Cerere, VuePdfEmbed}
+    components: {StatusOferta, VuePdfEmbed}
 })
 export default class Offers extends Vue {
     @Prop({ default: '0' }) public readonly pidOffer!: string|null;
     public offersHeaders:TOfferHeader[]=[];
     public loadingOffers = true;
-    public dialogViewOferta=false;
-    public selectedOfferId = '';
     public selectedOfferSlid = '';
-    public selectedOfferDate = '';
     public appidToBeCancelled='';
     public appidToBeRecalled='';
     public appidToBeDeleted='';
-    public dynamicComponent='';
     public inputSearchOffer = '';
-    public dialogTransitionShow ='';
-    public dialogTransitionHide ='';
     public userStore = getModule(user);
     public offersStore = getModule(offers);
     public EventBusStore = getModule(eventbus);
@@ -57,8 +49,6 @@ export default class Offers extends Vue {
     public selectedInvoices:Array<TFactura> = [];
     public widthPdf=300;
     public clicked=false;
-    public nume_utilizator_oferta = '';
-    public dinamicComponentTitle='';
 
     get user(
 
@@ -198,65 +188,23 @@ export default class Offers extends Vue {
         })
     }
 
-    public closeCurrentView(): void {
-        const vueInst=this;
-        //vueInst.dialogViewOferta = false;
-        vueInst.EventBusStore.set_event({name:'closeCurrentView', params:null});
-    }
-
-    public closeFormViewOferta(needRefresh:boolean): void {
-        const vueInst=this;
-        vueInst.dialogViewOferta = false;
-        if(needRefresh){
-            ServiceOffer.getOffer(vueInst.selectedOfferId).then(response=>{
-                if(response.status=='success'){
-                    //extend(true, vueInst.offerHeader,  response.offerHeader);
-                   const indexToBeReplaced= vueInst.offersHeaders.findIndex((poffer)=>{
-                        return poffer.offerId==response.offerHeader.offerId;
-                    })
-                    vueInst.offersHeaders[indexToBeReplaced]=response.offerHeader;
-                }
-            })
-        }
-        vueInst.selectedOfferId='';
-    }
-
     public onOpenOferta(pOfferId:string|null, pofferSlid:string|null , pofferDate:string|null, pNumeUtilizator:string|null): void {
         if(pOfferId && pofferSlid && pofferDate) {
-            this.dynamicComponent='Oferta';
-            this.dinamicComponentTitle=this.$t('message.offer') as string;
-            this.selectedOfferId = pOfferId;
-            this.selectedOfferSlid = pofferSlid;
-            this.selectedOfferDate = pofferDate;
-            this.nume_utilizator_oferta = pNumeUtilizator || '';
-
-            if (this.$q.platform.is.mobile) {
-                this.dialogTransitionShow = 'slide-right';
-                this.dialogTransitionHide = 'slide-left';
-            } else {
-                this.dialogTransitionShow = 'slide-right';
-                this.dialogTransitionHide = 'slide-left';
-            }
-            this.dialogViewOferta = true;
+            this.$router.push({
+                name: 'Oferta',
+                params: {pidOffer: pOfferId},
+                query: {slid: pofferSlid, d: pofferDate, u: pNumeUtilizator || ''}
+            });
         }
     }
 
     public onOpenCerere(pOfferId:string|null, pofferDate:string|null, pNumeUtilizator:string|null): void {
         if(pOfferId && pofferDate) {
-            this.dynamicComponent='Cerere';
-            this.dinamicComponentTitle=this.$t('message.request') as string;
-            this.selectedOfferId = pOfferId;
-            this.selectedOfferSlid = pOfferId;//ca sa nu mai fac variabile separate
-            this.selectedOfferDate = pofferDate;
-            this.nume_utilizator_oferta = pNumeUtilizator || '';
-            if (this.$q.platform.is.mobile) {
-            this.dialogTransitionShow = 'slide-right';
-            this.dialogTransitionHide = 'slide-left';
-        } else {
-            this.dialogTransitionShow = 'slide-right';
-            this.dialogTransitionHide = 'slide-left';
-        }
-        this.dialogViewOferta = true;
+            this.$router.push({
+                name: 'Cerere',
+                params: {pidOffer: pOfferId},
+                query: {d: pofferDate, u: pNumeUtilizator || ''}
+            });
         }
     }
 
@@ -281,11 +229,6 @@ export default class Offers extends Vue {
                 if(vueInst.EventBusStore.event.params && vueInst.EventBusStore.event.params.offerId){
                     vueInst.getOfferByIdFromDB(vueInst.EventBusStore.event.params.offerId)
                 }
-            }
-        }
-        if(vueInst.EventBusStore.event.name=='eventCloseDialogViewOffer'){
-            if(this.$route.name=='Offers') {
-                vueInst.dialogViewOferta=false;
             }
         }
     }

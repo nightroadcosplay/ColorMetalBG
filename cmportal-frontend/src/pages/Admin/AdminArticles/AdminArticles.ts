@@ -9,6 +9,7 @@ import {TUser} from "@/types/TUser";
 import {TArticle} from "@/types/TArticle";
 import EditArticle from "@/components/Admin/EditArticle/EditArticle.vue";
 import { parsePostgresArray } from '@/modules/utils';
+import {localizedTypeLabel} from '@/modules/typeLabel';
 
 @Options({
     name: "AdminArticles",
@@ -29,6 +30,11 @@ export default class AdminArticles extends Vue {
     public selectedPidArticle='';
     public arrArticles: TArticle[]=[];
     public nomenclatoareStore = getModule(nomenclatoare);
+
+    // Type label in the current language; the RO text stays the stored value.
+    public typeLabel(sizeType: string|null|undefined): string {
+        return localizedTypeLabel(sizeType, this.$i18n.locale);
+    }
 
     get user(): TUser {
         return this.userStore.user;

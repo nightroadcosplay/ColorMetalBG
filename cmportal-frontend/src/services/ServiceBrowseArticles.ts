@@ -24,6 +24,7 @@ interface TAjaxResponseIdentifyArticle {
     um1ToUm2: number;
     cuDebitare:'y'|'n';
     enumPlacaBara:TEnumPlacaBara;
+    kgFromUm2:string;
     densitate:number|null;
     isPlacaAluminiu:string;
 }
@@ -59,6 +60,9 @@ interface TAjaxResponseGetDetailCategory {
     arrThickness: Array<number>;
     arrDiameter: Array<number>;
     categoryName: string;
+    categoryNameRO: string;
+    categoryNameEN: string;
+    categoryNameBG: string;
     categoryPid: number;
     isParentForArticles: string;
     withDiameter: string;

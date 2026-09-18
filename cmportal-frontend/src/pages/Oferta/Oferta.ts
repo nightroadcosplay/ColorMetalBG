@@ -20,6 +20,8 @@ import favorites from "@/store/favorites";
 import { ServiceDownload } from '@/services/ServiceDownload';
 import VuePdfEmbed from 'vue-pdf-embed';
 import { TOptionCategory } from '@/types/TOptionCategory';
+import {hideKgQuantity} from '@/modules/umDisplay';
+import {localizedTypeLabel} from '@/modules/typeLabel';
 
 type TProductBasketMarkedFavorites = TProductBasket & {isInFavorite:boolean};
 
@@ -29,7 +31,6 @@ type TProductBasketMarkedFavorites = TProductBasket & {isInFavorite:boolean};
 })
 export default class Oferta extends Vue {
     @Prop({ default: null }) public readonly propOfferId!: string;
-    @Prop() public closeHandler!: (needRefresh: boolean)=>void;
     public offerHeader:TOfferHeader={
         offerId: '',
         offerSlid: '',
@@ -67,6 +68,11 @@ export default class Oferta extends Vue {
     declare public $refs: any;
     public userStore = getModule(user);
     public storeNomenclatoare = getModule(nomenclatoare);
+
+    // Type label in the current language; the RO text stays the stored value.
+    public typeLabel(sizeType: string|null|undefined): string {
+        return localizedTypeLabel(sizeType, this.$i18n.locale);
+    }
     public urlToJPG = CONFIG_ENV.URL_CATEGORY.getJPG;
     public slidAdresaLivrare='';
     public termenCerere='';
@@ -126,6 +132,31 @@ export default class Oferta extends Vue {
 
     private timeUntilFutureDate(pStringDate: string, pformat:string){
         return timeUntilFutureDate(pStringDate,pformat)
+    }
+
+    get pageTitle(): string {
+        const offerSlid = this.offerHeader.offerSlid || (this.$route.query.slid as string) || '';
+        const date = this.offerHeader.trackDateOfertare || (this.$route.query.d as string) || '';
+        const numeUtilizator = (this.$route.query.u as string) || '';
+        return `${this.$t('message.offer')} ${offerSlid}${date?' / '+date:''}${numeUtilizator?' '+numeUtilizator:''}`;
+    }
+
+    @Watch('pageTitle')
+    onPageTitleChanged(): void {
+        if(this.$q.platform.is.mobile){
+            this.userStore.set_title_back_bar(this.pageTitle);
+        }
+    }
+
+    public onBack(): void {
+        const vueInst=this;
+        if(vueInst.showBrowseArticles){
+            vueInst.showBrowseArticles=false;
+            vueInst.pidForBrowseCategory='0';
+            vueInst.pidForBrowseCategoryHasArticles=false;
+        }else{
+            vueInst.$router.push({name: 'Offers'});
+        }
     }
 
     public changeWitdhPdf(op: string): void {
@@ -242,7 +273,6 @@ export default class Oferta extends Vue {
         ServiceOffer.sendCerereForAnOffer2(vueInst.productsFromSales,vueInst.nrComandaCerere,vueInst.termenCerere,vueInst.slidAdresaLivrare, vueInst.offerHeader.offerSlid,vueInst.inputFreeTextComments).then(response=>{
             vueInst.$q.loading.hide();
             if(response.status=='success'){
-                vueInst.EventBusStore.set_event({name:'eventCloseDialogViewOffer',params:{offerId:response.offerId}});
                 vueInst.$router.push({name: 'FirstPageAfterPushOffer',  params: { pidOffer:response.offerId }});
             }
         }).catch((error) => {
@@ -324,12 +354,13 @@ export default class Oferta extends Vue {
                 vueInst.inputFreeTextComments = vueInst.offerHeader.observatii_asm ? vueInst.offerHeader.observatii_asm : '';
 
 
-                vueInst.totalFaraTVA = Number(vueInst.offerHeader.idValuta == 'RON' ? Number(vueInst.offerHeader.valFinalaFaraTvaRON).toFixed(2) : vueInst.offerHeader.idValuta == 'EUR' ? Number(vueInst.offerHeader.valFinalaFaraTvaEUR).toFixed(2) : Number(vueInst.offerHeader.valFinalaCuTvaHUF).toFixed(2));
+                vueInst.totalFaraTVA = Number(vueInst.offerHeader.idValuta == 'RON' ? Number(vueInst.offerHeader.valFinalaFaraTvaRON).toFixed(2) : vueInst.offerHeader.idValuta == 'EUR' ? Number(vueInst.offerHeader.valFinalaFaraTvaEUR).toFixed(2) : Number(vueInst.offerHeader.valFinalaFaraTvaHUF).toFixed(2));
                 vueInst.discLinii = Number(vueInst.offerHeader.idValuta == 'RON' ? Number(vueInst.offerHeader.val_discount_linii_ron).toFixed(2) : vueInst.offerHeader.idValuta == 'EUR' ? Number(vueInst.offerHeader.val_discount_linii_eur).toFixed(2): Number(vueInst.offerHeader.val_discount_linii_huf).toFixed(2));
                 vueInst.discOferta = Number(vueInst.offerHeader.idValuta == 'RON' ? Number(vueInst.offerHeader.val_discount_oferta_ron).toFixed(2) : vueInst.offerHeader.idValuta == 'EUR' ? Number(vueInst.offerHeader.val_discount_oferta_eur).toFixed(2) : Number(vueInst.offerHeader.val_discount_oferta_huf).toFixed(2));
                 vueInst.valFaraTVA = vueInst.totalFaraTVA + vueInst.discLinii + vueInst.discOferta;
-                vueInst.valTVA = vueInst.totalFaraTVA * 0.21;
-                vueInst.totalVal = vueInst.totalFaraTVA + vueInst.valTVA;
+                // Use the VAT the backend actually sends (0 when the offer comes from sales without VAT) instead of recomputing 21%
+                vueInst.valTVA = Number(vueInst.offerHeader.idValuta == 'RON' ? Number(vueInst.offerHeader.valTvaRON).toFixed(2) : vueInst.offerHeader.idValuta == 'EUR' ? Number(vueInst.offerHeader.valTvaEUR).toFixed(2) : Number(vueInst.offerHeader.valTvaHUF).toFixed(2));
+                vueInst.totalVal = Number(vueInst.offerHeader.idValuta == 'RON' ? Number(vueInst.offerHeader.valFinalaCuTvaRON).toFixed(2) : vueInst.offerHeader.idValuta == 'EUR' ? Number(vueInst.offerHeader.valFinalaCuTvaEUR).toFixed(2) : Number(vueInst.offerHeader.valFinalaCuTvaHUF).toFixed(2));
             
 
                 ServiceAdreseLivrare.getAdresaLivrare(vueInst.offerHeader.slidAdresaLivrare).then (response=>{
@@ -360,7 +391,7 @@ export default class Oferta extends Vue {
                         timeout: 500,
                         message: response.message
                     })
-                    vueInst.closeHandler(true);
+                    vueInst.$router.push({name: 'Offers'});
                 }
             })
             .catch(err => {
@@ -394,6 +425,7 @@ export default class Oferta extends Vue {
             um1: item.um1,
             um2: item.um2,
             um1_to_um2: item.um1_to_um2,
+            kgFromUm2: item.kgFromUm2,
             l: item.l,
             w:item.w,
             t:item.t,
@@ -596,13 +628,7 @@ export default class Oferta extends Vue {
         }
 
         if(vueInst.EventBusStore.event.name=='closeCurrentView'){
-            if(vueInst.showBrowseArticles){
-                vueInst.showBrowseArticles=false;
-                vueInst.pidForBrowseCategory='0';
-                vueInst.pidForBrowseCategoryHasArticles=false;
-            }else{
-                vueInst.EventBusStore.set_event({name:'eventCloseDialogViewOffer',params:null});
-            }
+            vueInst.onBack();
         }
     }
 
@@ -689,11 +715,20 @@ export default class Oferta extends Vue {
         return getFirstCategory(categories);
     }
 
-    public created(): void {
+    public activated(): void {
         const vueInst=this;
-        if(this.propOfferId){
+        vueInst.userStore.set_page_transition('fade-in-right');
+        if(vueInst.$q.platform.is.mobile) {
+            vueInst.userStore.set_showbackbar(true);
+            vueInst.userStore.set_title_back_bar(vueInst.pageTitle);
+        }
+        vueInst.showBrowseArticles=false;
+        vueInst.pidForBrowseCategory='0';
+        vueInst.pidForBrowseCategoryHasArticles=false;
+        vueInst.changedItemsInOffer=false;
+        vueInst.productsFromSales=[];
+        if(vueInst.propOfferId){
             vueInst.$q.loading.show();
-            //extend(true, this.adresa,  this.propAdresa);
             vueInst.getDetaliiOferta();
             ServiceAdreseLivrare.getAdreseLivrare().then(response=>{
                 if(response.status=='success'){
@@ -705,4 +740,19 @@ export default class Oferta extends Vue {
             })
         }
     }
+
+    //Same rule as the basket and the request list - see hideKgQuantity.
+    public showQtyUm1(item:TArticleOfferedFromSales):boolean{
+        const byTipUm = item.tip_um === 'um12' || item.tip_um === 'um1';
+        if(!byTipUm){return false;}
+        const um2Shown = !!(item.um2 && item.um2.length>0 && (item.tip_um === 'um12' || item.tip_um === 'um2'));
+        return !(um2Shown && hideKgQuantity({
+            kgFromUm2: item.kgFromUm2,
+            um1: item.um1,
+            um2: item.um2,
+            um1ToUm2: item.um1_to_um2,
+            cutting: item.cuDebitare === 'y'
+        }));
+    }
+
 }

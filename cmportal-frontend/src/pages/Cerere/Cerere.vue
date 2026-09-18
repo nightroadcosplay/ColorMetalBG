@@ -1,6 +1,14 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="q-pa-sm ecran-container-oferta ">
+  <div class="ecran-container">
+    <q-bar v-if="$q.platform.is.desktop" class="page__bar">
+      <q-btn dense flat icon="arrow_back" color="black" size="md" @click="onBack">
+        <q-tooltip content-class="bg-grey text-white">{{$t('message.close')}}</q-tooltip>
+      </q-btn>
+      <q-space />
+      <div class="page__bar--title">{{pageTitle}}</div>
+      <q-space />
+    </q-bar>
     <div v-if="showBrowseArticles">
       <BrowseCategories v-if="!pidForBrowseCategoryHasArticles" :pid="pidForBrowseCategory" :typeOfAccess="'fromCerere'"/>
       <BrowseArticles v-if="pidForBrowseCategoryHasArticles" :pidCategory="pidForBrowseCategory" :typeOfAccess="'fromCerere'" />
@@ -77,7 +85,7 @@
           >
             <template v-slot:error>
               <div class="absolute-full flex flex-center bg-negative text-white">
-                Cannot load image
+                {{$t('message.cannot_load_image')}}
               </div>
             </template>
           </q-img>
@@ -91,7 +99,7 @@
             <span v-if="item.d">{{$t('message.diameter')}} {{item.d}} mm </span>
             <span v-if="item.h">{{$t('message.height')}} {{item.h}} mm </span>
             <span v-if="item.a">{{$t('message.aliaj')}} {{item.a}} </span>
-            <span v-if="item.k"> {{item.k}} </span>
+            <span v-if="item.k"> {{typeLabel(item.k)}} </span>
           </span>
           <span v-if="item.dorescDebitare" class="app__color--semigray" style="font-weight: lighter;">
             {{item.qBuc}} {{$t('message.cutted_nr')}} <span v-if="item.cuttingLength">{{$t('message.length')}} {{item.cuttingLength}} mm </span><span v-if="item.cuttingWidth"> {{$t('message.width')}} {{item.cuttingWidth}} mm </span>
@@ -114,8 +122,8 @@
         </div>
 
         <div class="app__property--medium">
-          <div v-if="item.tip_um == 'um12' || item.tip_um == 'um1'">{{item.qUm1}} {{item.um1}}</div>
-          <div v-if="item.tip_um == 'um12' || item.tip_um == 'um2'">{{item.qUm2}} {{item.um2}}</div>
+          <div v-if="showQtyUm1(item)">{{item.qUm1}} {{$umLabel(item.um1)}}</div>
+          <div v-if="item.tip_um == 'um12' || item.tip_um == 'um2'">{{item.qUm2}} {{$umLabel(item.um2)}}</div>
         </div>
         <!--<div >{{item.q_um_base}} Kg</div>-->
         <div  class="shopping_cart__container--btns" >
@@ -132,7 +140,7 @@
         </div>
         </div>
       <div v-if="changedItemsInOffer" class="app-center-content-horizontal">
-        <q-btn icon="add_shopping_cart" label="Adauga articol in cerere" outline color="primary" no-caps @click="browseArticle" style="margin-top:1rem;" />
+        <q-btn icon="add_shopping_cart" :label="$t('message.add_item_request')" outline color="primary" no-caps @click="browseArticle" style="margin-top:1rem;" />
       </div>
     </div>
     </div>
@@ -168,30 +176,28 @@
 
 <style scoped lang="scss">
 @import "../../assets/mixins";
-.ecran-container-oferta {
+.ecran-container {
   display: flex;
   flex-direction: column;
-  margin: 0 auto;
-  justify-content: flex-start;
 
   @include media_small {
-    padding-left: 1vw;
-    padding-right: 1vw;
+    padding-left: 5vw;
+    padding-right: 5vw;
     background-color: white;
   }
 
   @include media_medium {
-    padding-top: 10px;
+    padding-top: 5vh;
     padding-left: 2vw;
     padding-right: 2vw;
     background-color: white;
   }
 
   @include media_large {
-    padding-top: 20px;
-    padding-left: 1vw;
-    padding-right: 1vw;
-    max-width:1200px;
+    padding-top: 5vh;
+    padding-left: 2vw;
+    padding-right: 2vw;
+    background-color: white;
   }
 }
 
@@ -344,6 +350,17 @@
   display:flex;
   justify-content: space-between; 
   width:100%; 
+}
+
+.page__bar{
+  background: transparent;
+  margin-bottom: 1rem;
+}
+
+.page__bar--title{
+  color: #788896;
+  font-size: 1.2rem;
+  font-weight: 800;
 }
 
 .my_card{

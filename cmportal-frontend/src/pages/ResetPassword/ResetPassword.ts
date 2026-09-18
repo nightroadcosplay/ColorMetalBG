@@ -1,5 +1,6 @@
 import { Vue, Options } from 'vue-class-component'
 import {ServiceUser} from '@/services/ServiceUser';
+import {setQuasarLang} from '@/modules/quasarLang';
 import user from '@/store/user';
 import nomenclatoare from '@/store/nomenclatoare';
 import {getModule} from "vuex-module-decorators";
@@ -44,7 +45,7 @@ export default class ResetPassword extends Vue {
                 color: 'red',
                 textColor: 'white',
                 type: 'negative',
-                message: this.$t("password_mismatch") as string,
+                message: this.$t("message.password_mismatch") as string,
                 position: 'top',
                 timeout: 3500,
             })
@@ -78,6 +79,7 @@ export default class ResetPassword extends Vue {
         console.log("change lang " + this.selectedLang);
         localStorage.setItem('lang', vueInst.selectedLang);
         this.$i18n.locale = vueInst.selectedLang;
+        setQuasarLang(vueInst.selectedLang);
         ServiceUser.changeLang(vueInst.selectedLang);
         vueInst.storeEventsBus.set_event({name:'changeLanguage', params:null});
     }

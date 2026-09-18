@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class InvoiceController extends Controller
 {
+    use TranslatesMessages;
 public function indexAction()
     {
 
@@ -158,7 +159,7 @@ public function getMyInvoices(){
             $responce->status="success";
         } else {
             $responce->status="error";
-            $responce->message="Factura cu nr. " . $bill_nr . " nu este in baza de date";
+            $responce->message=$this->t('factura_cu_nr_s_nu_este_in_baza_de_date', $bill_nr);
         }
         $response
             ->setJsonContent($responce)

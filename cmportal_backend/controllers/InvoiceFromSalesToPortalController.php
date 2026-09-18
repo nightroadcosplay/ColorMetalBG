@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class InvoiceFromSalesToPortalController extends Controller
 {
+use TranslatesMessages;
 public function indexAction()
     {
 
@@ -28,7 +29,7 @@ public function invoiceFromSales($token){
     $arrData= json_decode($rawdata,true);
     if(count($arrData)!=18){//lipsesc parametri
         $responce->status="error";
-        $responce->message="Parametri lipsa!"; 
+        $responce->message=$this->t('parametri_lipsa');
         $response->setStatusCode(400, 'Bad Request');
     }
 
@@ -55,7 +56,7 @@ public function invoiceFromSales($token){
 
             if($invoice->save()===false){
                         $responce->status="error";
-                        $responce->message='Error on save invoice with bill_nr='.$postData->bill_nr;
+                        $responce->message=$this->t('error_on_save_invoice_with_bill_nr_s', $postData->bill_nr);
                         $messages = $invoice->getMessages();
                         foreach ($messages as $message) {$responce->message.=$message;}
                     }

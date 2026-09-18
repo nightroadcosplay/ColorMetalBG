@@ -7,6 +7,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 class ApiNavGetInvoice extends Controller
 {
+    use TranslatesMessages;
     private $logger;
     private $writeComputationalsToLogs = true;
     public $nav_success;
@@ -141,7 +142,7 @@ class ApiNavGetInvoice extends Controller
 
 	    	if(empty($responce->invoices)) {
 	    		$responce->status = "info";
-    			$responce->message = "Nu sunt facturi noi in nav pentru acest client!";
+    			$responce->message = $this->t('nu_sunt_facturi_noi_in_nav_pentru_acest_client');
     			return $responce;
 	    	} else {
 	    		$responce->status = "success";

@@ -9,8 +9,8 @@
     </div>
     <div v-for="document in arrDocuments" :key="document.appid" class="dashboard__document__section app__border__bottom" >
       <div class="dashboard__document__details">
-        <span class="app__label--small">Tip Document</span><span class="app__color--blue">{{document.tipDocument}}</span>
-        <span class="app__label--small">Data</span><span class="app__property--small">{{document.dataDocument}}</span>
+        <span class="app__label--small">{{$t('message.document_type')}}</span><span class="app__color--blue">{{document.tipDocument}}</span>
+        <span class="app__label--small">{{$t('message.date')}}</span><span class="app__property--small">{{document.dataDocument}}</span>
         <span class="app__label--small">Id</span><span class="app__property--small">{{document.idDocument}}</span>
       </div>
       <div class="dashboard__document__icons" >
