@@ -131,7 +131,7 @@ export default class Oferta extends Vue {
     public totalVal = 0;
 
     private timeUntilFutureDate(pStringDate: string, pformat:string){
-        return timeUntilFutureDate(pStringDate,pformat)
+        return timeUntilFutureDate(pStringDate,pformat,this.$i18n.locale)
     }
 
     get pageTitle(): string {

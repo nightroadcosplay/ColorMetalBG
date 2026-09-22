@@ -1,13 +1,24 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import moment, {Moment} from 'moment';
 import dayjs from 'dayjs';
-import 'dayjs/locale/ro' // import locale
+//Every language the portal offers; 'en' is dayjs's own default.
+import 'dayjs/locale/ro'
+import 'dayjs/locale/bg'
+import 'dayjs/locale/hu'
 import { scroll } from 'quasar';
 const { getScrollTarget, setVerticalScrollPosition } = scroll;
-dayjs.locale('ro') // use locale
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {TPossibleOfferStatus} from "@/types/TPossibleOfferStatus";
 dayjs.extend(relativeTime)
+
+//The locale is applied per date instead of globally with dayjs.locale(): the
+//global setting left "expires in 3 days" and month names in Romanian whatever
+//language was selected. Callers pass the locale they are rendering in.
+const DATE_LOCALES = ['ro', 'en', 'bg', 'hu'];
+function dateLocale(plocale?: string): string {
+    const locale = (plocale || '').toLowerCase();
+    return DATE_LOCALES.includes(locale) ? locale : 'en';
+}
 export function getBase64Image(img:any) {
     const canvas = document.createElement("canvas");
     canvas.width = img.width;
@@ -48,35 +59,38 @@ export function dateToStringDDMonYYYY(pDate: Moment) {
     return moment(pDate).format('D MMM YYYY');
 }
 
-export function timeUntilNow(pStringDate: string, pformat:string) {
+export function timeUntilNow(pStringDate: string, pformat:string, plocale?:string) {
+    const locale = dateLocale(plocale);
     let result='';
     if(pStringDate && pStringDate.length==10){
-        result = dayjs(pStringDate,pformat).fromNow();
+        result = dayjs(pStringDate,pformat).locale(locale).fromNow();
     }
     if(pStringDate && pStringDate.length==16){
-        result = dayjs(pStringDate,pformat).fromNow();
+        result = dayjs(pStringDate,pformat).locale(locale).fromNow();
     }
     return result;
 }
 
-export function timeUntilFutureDate(pStringDate: string, pformat:string) {
+export function timeUntilFutureDate(pStringDate: string, pformat:string, plocale?:string) {
+    const locale = dateLocale(plocale);
     let result='';
     if(pStringDate && pStringDate.length==10){
-        result = dayjs(pStringDate,pformat).fromNow();
+        result = dayjs(pStringDate,pformat).locale(locale).fromNow();
     }
     if(pStringDate && pStringDate.length==16){
-        result = dayjs(pStringDate,pformat).fromNow();
+        result = dayjs(pStringDate,pformat).locale(locale).fromNow();
     }
     return result;
 }
 
-export function timeDateHuman(pStringDate: string, pformat:string) {
+export function timeDateHuman(pStringDate: string, pformat:string, plocale?:string) {
+    const locale = dateLocale(plocale);
     let result='';
     if(pStringDate && pStringDate.length==10){
-        result = dayjs(pStringDate,pformat).format('D MMM YYYY');
+        result = dayjs(pStringDate,pformat).locale(locale).format('D MMM YYYY');
     }
     if(pStringDate && pStringDate.length==16){
-        result = dayjs(pStringDate,pformat).format('D MMM YYYY');
+        result = dayjs(pStringDate,pformat).locale(locale).format('D MMM YYYY');
     }
     return result;
 }

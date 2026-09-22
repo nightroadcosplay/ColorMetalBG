@@ -104,7 +104,7 @@ export default class Offers extends Vue {
 
 
     public timeDateHuman(pdate:string,pformat:string): string {
-        return timeDateHuman?timeDateHuman(pdate,pformat):'';
+        return timeDateHuman?timeDateHuman(pdate,pformat,this.$i18n.locale):'';
     }
 
     public getOffersFromDB(): void {
@@ -147,11 +147,11 @@ export default class Offers extends Vue {
     }
 
     public timeUntilNow(pStringDate: string, pformat:string): string {
-        return timeUntilNow(pStringDate,pformat)
+        return timeUntilNow(pStringDate,pformat,this.$i18n.locale)
     }
 
     public timeUntilFutureDate(pStringDate: string, pformat:string): string {
-        return timeUntilFutureDate(pStringDate,pformat)
+        return timeUntilFutureDate(pStringDate,pformat,this.$i18n.locale)
     }
 
     askCancelOffer(pOfferId:string): void {
